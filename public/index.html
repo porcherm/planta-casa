@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Planta do apartamento com medidas por cômodo e modelo 3D.">
+  <meta name="theme-color" content="#04060b">
+  <title>Planta do Apê</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/planta.css">
+
+  <!-- three.js (modelo 3D): carregado como global, executa antes do módulo da aplicação -->
+  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Aplicação -->
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="2" width="22" height="22" fill="none" stroke="#4f86ff" stroke-width="2.4"/><path d="M2 13h11V2M13 13v11M13 18h11" fill="none" stroke="#4f86ff" stroke-width="2.4"/></svg>
+      <span>Planta do Apê</span>
+    </div>
+    <span class="pill" id="badge"><span class="dot" id="badge-dot"></span><span id="badge-txt">Rascunho do desenho</span></span>
+  </header>
+
+  <section class="intro">
+    <span class="eyebrow" id="nome-ape">Apartamento</span>
+    <h1 id="titulo">Minha casa, cômodo por cômodo</h1>
+  </section>
+
+  <!-- Aparece só quando os dados da planta têm algum erro -->
+  <div class="card erro-dados" id="erro-dados" role="alert" hidden>
+    <span class="eyebrow">Erro nos dados da planta</span>
+    <p id="erro-dados-txt"></p>
+    <p class="erro-dica">Confira o arquivo <code>public/js/constants/apartamento.js</code>. Para mais detalhes, abra o console do navegador (F12).</p>
+  </div>
+
+  <main class="workspace">
+    <!-- Palco: planta 2D ou modelo 3D -->
+    <section class="stage" aria-label="Visualização da planta">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Tipo de visualização">
+          <button type="button" id="tab-2d" aria-pressed="true">Planta 2D</button>
+          <button type="button" id="tab-3d" aria-pressed="false">Modelo 3D</button>
+        </div>
+        <div class="legend" aria-label="Legenda">
+          <span><i class="sw seco"></i>Seca</span>
+          <span><i class="sw molhado"></i>Molhada</span>
+          <span><i class="sw circulacao"></i>Circulação</span>
+          <span><i class="sw sacada"></i>Sacada</span>
+          <span><i class="sw janela"></i>Janela</span>
+        </div>
+      </div>
+
+      <div class="subbar" id="bar-2d">
+        <div class="grp">
+          <button type="button" class="btn sm" id="regua-btn" aria-pressed="false">Régua</button>
+          <button type="button" class="btn sm ico" id="zoom-menos" aria-label="Diminuir zoom">−</button>
+          <button type="button" class="btn sm ico" id="zoom-mais" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="btn sm" id="zoom-ajustar">Ajustar</button>
+        </div>
+        <div class="grp" role="group" aria-label="Camadas da planta">
+          <span class="grp-t">Mostrar</span>
+          <button type="button" class="chip-t" data-camada="nomes" aria-pressed="true">Nomes</button>
+          <button type="button" class="chip-t" data-camada="cotas" aria-pressed="true">Medidas</button>
+          <button type="button" class="chip-t" data-camada="portas" aria-pressed="true">Portas</button>
+          <button type="button" class="chip-t" data-camada="grade" aria-pressed="true">Grade</button>
+        </div>
+      </div>
+
+      <div class="view" id="view-2d">
+        <svg id="planta" role="img" aria-label="Planta baixa do apartamento"></svg>
+        <div class="overlay ov-top ov-direita"><span class="tag mono" id="coord-2d" hidden></span></div>
+        <div class="overlay ov-bottom"><span class="tag" id="tag-2d">Toque num cômodo para ver as medidas</span></div>
+      </div>
+
+      <div class="view" id="view-3d" hidden>
+        <div id="view3d"></div>
+        <div class="overlay ov-top">
+          <span class="tag">Selecionado: <b id="sel-3d">—</b></span>
+          <span class="tag">Arraste para girar · pinça ou roda para zoom</span>
+        </div>
+        <div class="overlay ov-bottom">
+          <button type="button" class="btn" id="cam-iso">Vista 3D</button>
+          <button type="button" class="btn" id="cam-top">Vista de cima</button>
+          <button type="button" class="btn" id="paredes" aria-pressed="false">Paredes baixas</button>
+        </div>
+        <div class="fallback" id="fallback-3d" hidden>O modelo 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
+      </div>
+    </section>
+
+    <!-- Painel lateral: cômodo selecionado + lista -->
+    <aside class="panel">
+      <div class="card detail" aria-live="polite">
+        <span class="eyebrow">Cômodo selecionado</span>
+        <h2 id="d-nome">—</h2>
+        <span class="chip" id="d-tipo">—</span>
+        <div class="aviso-room" id="d-nota" hidden><span class="dot"></span><span id="d-nota-txt"></span></div>
+        <dl class="medidas">
+          <div><dt id="d-larg-t">Largura</dt><dd id="d-larg">—</dd></div>
+          <div><dt id="d-comp-t">Comprimento</dt><dd id="d-comp">—</dd></div>
+          <div><dt>Área do piso</dt><dd id="d-area">—</dd></div>
+          <div><dt>Perímetro</dt><dd id="d-per">—</dd></div>
+          <div><dt>Pé-direito</dt><dd id="d-pe">—</dd></div>
+          <div><dt>Área de paredes</dt><dd id="d-par">—</dd></div>
+        </dl>
+      </div>
+
+      <div class="card rooms">
+        <h3>Cômodos <small id="r-count">0</small></h3>
+        <ul id="lista"></ul>
+        <div class="total">
+          <div><span>Área interna</span><strong id="area-total">—</strong></div>
+          <div class="sub"><span>Sacadas</span><strong id="area-sacadas">—</strong></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+</body>
+</html>

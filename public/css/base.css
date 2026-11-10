@@ -1,0 +1,93 @@
+/* ==========================================================================
+   Base — design tokens, reset e tipografia global
+   Tema: "prancheta noturna" (fundo escuro, linhas em azul)
+   ========================================================================== */
+
+:root {
+  /* Superfícies */
+  --bg: #04060b;
+  --glow: #0b1a3a;
+  --surface: #0a1120;
+  --surface-2: #0f1b33;
+  --line: #1a2844;
+  --line-strong: #2b3f66;
+
+  /* Texto e destaque */
+  --fg: #e7edf8;
+  --muted: #8a99b8;
+  --accent: #4f86ff;
+  --accent-soft: rgba(79, 134, 255, .16);
+
+  /* Cômodos (por tipo de área) */
+  --room-seco: #0f1f3d;
+  --room-molhado: #0b2a40;
+  --room-circulacao: #0a1528;
+  --room-sacada: #070d19;
+  --room-sel: #17336b;
+
+  /* Elementos da planta */
+  --wall: #d6dff0;
+  --rail: #7f93bd;
+  --grid: #0b162c;
+  --grid-strong: #122243;
+
+  /* Estados */
+  --ok: #43c59a;
+  --wait: #e2b553;
+  --danger: #ff7a7a;
+
+  /* Fontes */
+  --f-display: "Syne", "Archivo", system-ui, sans-serif;
+  --f-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  background: radial-gradient(1100px 480px at 78% -8%, var(--glow) 0%, transparent 62%), var(--bg);
+  color: var(--fg);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+
+[hidden] { display: none !important; }
+
+button,
+textarea { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 56px);
+  line-height: 1.02;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+  max-width: 16ch;
+}
+
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

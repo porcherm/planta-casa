@@ -1,0 +1,13 @@
+{
+  "name": "planta-casa",
+  "version": "1.0.0",
+  "description": "Planta 2D interativa e modelo 3D de um apartamento, em JavaScript puro, construído inteiramente com IA.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes serve public -l 5000",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "keywords": ["planta-baixa", "floor-plan", "threejs", "svg", "vanilla-js", "ai-generated"],
+  "license": "MIT"
+}

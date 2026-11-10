@@ -1,0 +1,13 @@
+# Dependências
+node_modules/
+
+# Firebase
+.firebase/
+firebase-debug.log*
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

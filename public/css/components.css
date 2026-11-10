@@ -1,0 +1,233 @@
+/* ==========================================================================
+   Componentes — botões, pílulas, legenda, cards, lista de cômodos, etapas
+   ========================================================================== */
+
+/* Pílula de status + ponto colorido */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--wait); flex: none; }
+.dot.ok { background: var(--ok); }
+
+/* Botões */
+.btn {
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  color: var(--fg);
+  border-radius: 9px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.btn:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.btn.primary:hover { filter: brightness(1.1); }
+.btn.sm { padding: 6px 11px; font-size: 12.5px; }
+.btn.ico { width: 32px; padding: 5px 0; font-size: 16px; line-height: 1; }
+
+/* Seletor segmentado (Planta 2D / Modelo 3D) */
+.seg {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.seg button:hover { color: var(--fg); }
+.seg button[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+/* Grupo de controles e chips de camada */
+.grp { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.grp-t {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 2px;
+}
+.chip-t {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.chip-t:hover { color: var(--fg); }
+.chip-t[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--fg); }
+
+/* Legenda de cores */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 11px; height: 11px; border-radius: 2px; border: 1px solid var(--line-strong); }
+.sw.seco { background: var(--room-seco); }
+.sw.molhado { background: var(--room-molhado); }
+.sw.circulacao { background: var(--room-circulacao); }
+.sw.sacada { background: var(--room-sacada); border-color: var(--rail); border-style: dashed; }
+.sw.indefinido { background: repeating-linear-gradient(45deg, var(--line-strong) 0 1.5px, transparent 1.5px 4px); }
+.sw.janela {
+  background:
+    linear-gradient(var(--wall), var(--wall)) top / 100% 2px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) center / 100% 2px no-repeat,
+    linear-gradient(var(--wall), var(--wall)) bottom / 100% 2px no-repeat;
+  border: 0;
+}
+
+/* Sobreposições no palco (dicas e botões flutuantes) */
+.overlay { position: absolute; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+.overlay > * { pointer-events: auto; }
+.ov-top { top: 12px; left: 12px; right: 12px; justify-content: space-between; align-items: flex-start; }
+.ov-bottom { left: 12px; right: 12px; bottom: 12px; }
+.tag {
+  background: rgba(4, 6, 11, .78);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  backdrop-filter: blur(6px);
+}
+.tag b { color: var(--fg); font-weight: 600; }
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Card genérico */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+
+/* Card: cômodo selecionado */
+.detail { display: flex; flex-direction: column; gap: 14px; }
+.detail h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+}
+.chip {
+  align-self: flex-start;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+}
+.aviso-room {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--fg);
+  background: rgba(226, 181, 83, .08);
+  border: 1px solid rgba(226, 181, 83, .35);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.aviso-room .dot { margin-top: 6px; }
+
+dl.medidas { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+dl.medidas div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+dl.medidas dt { font-size: 12px; color: var(--muted); }
+dl.medidas dd { margin: 0; font-family: var(--f-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+
+/* Card: lista de cômodos */
+.rooms h3 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.rooms h3 small { font-family: var(--f-mono); font-weight: 400; font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.rooms ul { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.rooms li button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.rooms li button:hover { background: var(--surface-2); }
+.rooms li button[aria-current="true"] { background: var(--accent-soft); }
+.rooms li button[aria-current="true"] .r-nome { color: var(--accent); }
+.r-nome { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 7px; }
+.r-area { font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
+.r-med { grid-column: 1 / -1; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.total { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding: 12px 10px 0; border-top: 1px solid var(--line); }
+.total div { display: flex; justify-content: space-between; align-items: baseline; }
+.total span { color: var(--muted); font-size: 13px; }
+.total strong { font-family: var(--f-mono); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.total .sub strong { font-size: 14px; color: var(--muted); }
+
+/* Coordenadas sob o cursor (canto superior direito da planta) */
+.ov-direita { justify-content: flex-end; }
+.tag.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--fg); }
+
+/* Erro nos dados da planta */
+.erro-dados { display: flex; flex-direction: column; gap: 8px; border-color: var(--danger); }
+.erro-dados .eyebrow { color: var(--danger); }
+.erro-dados p { margin: 0; }
+#erro-dados-txt { font-family: var(--f-mono); font-size: 14px; }
+.erro-dica { color: var(--muted); font-size: 13px; }
+.erro-dica code { font-family: var(--f-mono); color: var(--fg); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
