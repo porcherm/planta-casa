@@ -15,6 +15,8 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
 
 ### [🔗 Ver ao vivo: planta-do-ape.web.app](https://planta-do-ape.web.app)
 
+<sub>O site ao vivo mostra o meu apartamento. Clonando o repositório, você começa com uma casa de exemplo pronta para virar a sua.</sub>
+
 </div>
 
 ---
@@ -121,13 +123,15 @@ Três regras resolvem quase tudo:
 
 ### 4. Comece pela casa de exemplo
 
-Existe uma casa bem simples, comentada linha a linha, em [`public/js/constants/exemplos/casa-simples.js`](public/js/constants/exemplos/casa-simples.js):
+Ao clonar o repositório, o [`apartamento.js`](public/js/constants/apartamento.js) já vem com uma **casa de exemplo** bem simples, comentada linha a linha. É ela que aparece ao rodar `npm run dev`:
 
 ![Casa de exemplo](docs/casa-de-exemplo.png)
 
-1. Copie todo o conteúdo dela para `public/js/constants/apartamento.js`, substituindo o que está lá.
-2. Recarregue a página: você vai ver a casa de exemplo.
-3. Vá trocando cômodo por cômodo pelas medidas da sua casa, recarregando a cada passo.
+1. Abra `public/js/constants/apartamento.js` e leia os comentários junto com a imagem acima.
+2. Vá trocando cômodo por cômodo pelas medidas da sua casa, salvando e recarregando a página a cada passo.
+3. Se bagunçar tudo, há uma cópia intacta do exemplo em [`exemplos/casa-simples.js`](public/js/constants/exemplos/casa-simples.js) para recomeçar.
+
+> 🔎 Quer ver um caso real e mais complexo, com corredor, sacadas em formato livre e janela em losango? Os dados do meu apartamento (o do site ao vivo) estão no ramo [`meu-apartamento`](https://github.com/porcherm/planta-casa/blob/meu-apartamento/public/js/constants/apartamento.js).
 
 No topo do arquivo ficam as informações gerais:
 
