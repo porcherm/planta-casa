@@ -13,8 +13,7 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
 ![Firebase](https://img.shields.io/badge/Firebase-Hosting-ffca28?logo=firebase&logoColor=black)
 ![Feito com IA](https://img.shields.io/badge/feito%20com-IA-8a5cff)
 
-<!-- Quando publicar, troque pelo link do site: -->
-<!-- [**🔗 Ver ao vivo**](https://SEU-PROJETO.web.app) -->
+### [🔗 Ver ao vivo: planta-do-ape.web.app](https://planta-do-ape.web.app)
 
 </div>
 
