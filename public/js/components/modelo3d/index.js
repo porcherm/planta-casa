@@ -59,6 +59,7 @@ export function iniciarModelo3D(store) {
       renderer, scene, camera, controls,
       pecas: construirCena(grupo, store.dados),
       paredesBaixas: false,
+      portasOcultas: false,
       rodando: false,
     };
 
@@ -101,6 +102,12 @@ export function iniciarModelo3D(store) {
     pecas.paredes.forEach((m) => ajustarAltura(m, h));
     pecas.vergas.forEach((m) => { m.visible = !paredesBaixas; });
     [...pecas.peitoris, ...pecas.folhas].forEach((m) => ajustarAltura(m, Math.min(m.userData.alt || h, h)));
+  }
+
+  /** Mostra ou esconde as folhas das portas (os vãos continuam abertos). */
+  function aplicarVisibilidadeDasPortas() {
+    if (!cena) return;
+    cena.pecas.folhas.forEach((m) => { m.visible = !cena.portasOcultas; });
   }
 
   function destacarSelecionado() {
@@ -149,6 +156,12 @@ export function iniciarModelo3D(store) {
     cena.paredesBaixas = !cena.paredesBaixas;
     aplicarAlturaDasParedes();
     e.currentTarget.setAttribute('aria-pressed', String(cena.paredesBaixas));
+  });
+  $('portas-3d').addEventListener('click', (e) => {
+    if (!cena) return;
+    cena.portasOcultas = !cena.portasOcultas;
+    aplicarVisibilidadeDasPortas();
+    e.currentTarget.setAttribute('aria-pressed', String(cena.portasOcultas));
   });
   store.observar(destacarSelecionado);
 

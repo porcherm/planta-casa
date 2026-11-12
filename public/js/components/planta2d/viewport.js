@@ -26,6 +26,9 @@ export function criarViewport(svg) {
   return {
     paraPlanta,
 
+    /** Enquadramento da planta inteira (independe do zoom atual). */
+    obterBase: () => (base ? { ...base } : null),
+
     definirBase(viewBox) {
       base = viewBox;
       if (!atual) atual = { ...base };

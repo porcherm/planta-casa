@@ -31,8 +31,7 @@
 .room { cursor: pointer; }
 .room:focus { outline: none; }
 .room .piso { transition: fill .15s; }
-.room .piso.seco { fill: var(--room-seco); }
-.room .piso.molhado { fill: var(--room-molhado); }
+.room .piso.interno { fill: var(--room-interno); }
 .room .piso.circulacao { fill: var(--room-circulacao); }
 .room .piso.sacada { fill: var(--room-sacada); }
 .room .piso.indefinido { fill: url(#hachura); }

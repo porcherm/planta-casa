@@ -8,5 +8,5 @@ export function mostrarErroDeDados(mensagem) {
   $('erro-dados').hidden = false;
   document.querySelector('.workspace').hidden = true;
   $('badge').hidden = true;
-  console.error(`[Planta do Apê] ${mensagem}`);
+  console.error(`[Roomprint] ${mensagem}`);
 }

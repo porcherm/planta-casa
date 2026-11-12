@@ -101,8 +101,7 @@
 }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .sw { width: 11px; height: 11px; border-radius: 2px; border: 1px solid var(--line-strong); }
-.sw.seco { background: var(--room-seco); }
-.sw.molhado { background: var(--room-molhado); }
+.sw.interno { background: var(--room-interno); }
 .sw.circulacao { background: var(--room-circulacao); }
 .sw.sacada { background: var(--room-sacada); border-color: var(--rail); border-style: dashed; }
 .sw.indefinido { background: repeating-linear-gradient(45deg, var(--line-strong) 0 1.5px, transparent 1.5px 4px); }
@@ -220,9 +219,12 @@ dl.medidas dd { margin: 0; font-family: var(--f-mono); font-size: 18px; font-var
 .total strong { font-family: var(--f-mono); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .total .sub strong { font-size: 14px; color: var(--muted); }
 
-/* Coordenadas sob o cursor (canto superior direito da planta) */
-.ov-direita { justify-content: flex-end; }
+/* Coordenadas sob o cursor (canto superior esquerdo da planta) */
 .tag.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--fg); }
+
+/* Botão "Baixar PNG" (canto superior direito da planta) */
+.btn-exportar { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
+.btn-exportar:disabled { opacity: .6; cursor: progress; }
 
 /* Erro nos dados da planta */
 .erro-dados { display: flex; flex-direction: column; gap: 8px; border-color: var(--danger); }

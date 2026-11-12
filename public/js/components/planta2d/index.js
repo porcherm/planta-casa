@@ -8,6 +8,7 @@ import { formatarMetros } from '../../utils/formatar.js';
 import { desenharPlanta, desenharMedidasDoComodo, desenharRegua } from './desenho.js';
 import { criarViewport } from './viewport.js';
 import { registrarGestos } from './gestos.js';
+import { exportarPng, nomeDoArquivo } from './exportar.js';
 
 export function iniciarPlanta2D(store) {
   const svg = $('planta');
@@ -130,6 +131,25 @@ export function iniciarPlanta2D(store) {
   $('zoom-menos').addEventListener('click', () => viewport.zoom(1 / ZOOM.passoBotao));
   $('zoom-ajustar').addEventListener('click', () => viewport.ajustar());
   $('regua-btn').addEventListener('click', (e) => alternarRegua(e.currentTarget));
+  $('baixar-png').addEventListener('click', (e) => baixarPng(e.currentTarget));
+
+  /* ---------- Exportar PNG ---------- */
+
+  async function baixarPng(botao) {
+    const rotulo = botao.querySelector('span');
+    const textoOriginal = rotulo.textContent;
+    botao.disabled = true;
+    rotulo.textContent = 'Gerando…';
+    try {
+      await exportarPng(svg, viewport.obterBase(), nomeDoArquivo(store.dados.nome));
+    } catch (erro) {
+      console.error(erro);
+      dicaEl.textContent = 'Não foi possível gerar o PNG neste navegador.';
+    } finally {
+      botao.disabled = false;
+      rotulo.textContent = textoOriginal;
+    }
+  }
 
   // Chips "Mostrar": cada um liga/desliga uma camada (nomes, cotas, portas, grade)
   document.querySelectorAll('[data-camada]').forEach((botao) => botao.addEventListener('click', () => {

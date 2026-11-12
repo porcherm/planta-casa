@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏠 Planta do Apê
+# 🏠 Roomprint
 
 **Transforme as medidas da sua casa numa planta baixa interativa e num modelo 3D, direto no navegador.**
 
@@ -52,7 +52,8 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
 - **Régua** para medir a distância entre dois pontos quaisquer.
 - **Coordenadas sob o cursor**, que ajudam a posicionar portas e janelas na hora de montar a sua planta.
 - **Camadas** liga/desliga: nomes, cotas, portas e grade.
-- **Modelo 3D** gerado dos mesmos dados: paredes, portas abertas, janelas com vidro, sacadas com guarda-corpo, vista de cima e o modo "paredes baixas".
+- **Baixar PNG**: exporta a planta inteira como imagem em alta resolução, respeitando as camadas ligadas.
+- **Modelo 3D** gerado dos mesmos dados: paredes, portas abertas, janelas com vidro, sacadas com guarda-corpo, vista de cima e os modos "paredes baixas" e "ocultar portas".
 - **Mensagens de erro claras** quando algum dado está errado, inclusive uma vírgula faltando.
 - Funciona no **celular** e é acessível pelo **teclado**.
 
@@ -155,12 +156,12 @@ export const APARTAMENTO = {
 Cada cômodo retangular é uma linha:
 
 ```js
-{ id: 'sala', nome: 'Sala', tipo: 'seco', medido: true, x: 0, y: 0, largura: 400, comprimento: 350 },
-{ id: 'quarto', nome: 'Quarto', tipo: 'seco', medido: true, x: 412, y: 0, largura: 300, comprimento: 350 },
+{ id: 'sala', nome: 'Sala', tipo: 'interno', medido: true, x: 0, y: 0, largura: 400, comprimento: 350 },
+{ id: 'quarto', nome: 'Quarto', tipo: 'interno', medido: true, x: 412, y: 0, largura: 300, comprimento: 350 },
 ```
 
 - `id`: um nome curto, sem espaços e sem acento (usado internamente).
-- `tipo`: define a cor. `seco` (sala, quartos), `molhado` (cozinha, banheiro, lavanderia), `circulacao` (corredores), `sacada` ou `indefinido` (ainda não sabe).
+- `tipo`: define a cor e o comportamento. `interno` (padrão: sala, quartos, cozinha, banheiro…), `circulacao` (corredores), `sacada` ou `indefinido` (ainda não sabe). Os nomes antigos `seco` e `molhado` continuam aceitos e viram `interno`.
 - `medido: true`: marca que você mediu com trena. O selo no topo da página mostra quantos cômodos já foram medidos.
 - `nota` (opcional): um aviso que aparece ao selecionar o cômodo, por exemplo `nota: 'Confirmar a largura'`.
 
@@ -263,7 +264,7 @@ No fim, o terminal mostra o link do seu site (algo como `https://seu-projeto.web
 |---|---|---|
 | `nome` | **sim** | Nome exibido |
 | `id` | não | Identificador sem espaços (gerado se faltar) |
-| `tipo` | não | `seco` (padrão), `molhado`, `circulacao`, `sacada` ou `indefinido` |
+| `tipo` | não | `interno` (padrão), `circulacao`, `sacada` ou `indefinido` |
 | `x`, `y`, `largura`, `comprimento` | **sim**, se não usar `pontos` | Retângulo, em cm |
 | `pontos` | **sim**, se não usar o retângulo | Lista de cantos `[x, y]` (mínimo 3) |
 | `medido` | não | `true` se foi medido com trena |
@@ -326,7 +327,7 @@ planta-casa/
 │       ├── context/            # estado compartilhado (cômodo selecionado)
 │       ├── domain/             # regras puras: validação e geometria
 │       ├── components/
-│       │   ├── planta2d/       # desenho SVG, zoom/arrasto, gestos de toque
+│       │   ├── planta2d/       # desenho SVG, zoom/arrasto, gestos de toque, exportar PNG
 │       │   ├── modelo3d/       # cena three.js e construção do modelo
 │       │   ├── painel.js       # detalhes + lista de cômodos
 │       │   ├── cabecalho.js

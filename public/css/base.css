@@ -19,8 +19,7 @@
   --accent-soft: rgba(79, 134, 255, .16);
 
   /* Cômodos (por tipo de área) */
-  --room-seco: #0f1f3d;
-  --room-molhado: #0b2a40;
+  --room-interno: #0f1f3d;
   --room-circulacao: #0a1528;
   --room-sacada: #070d19;
   --room-sel: #17336b;

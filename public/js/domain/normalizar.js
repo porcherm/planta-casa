@@ -1,4 +1,4 @@
-import { TIPOS_COMODO, TIPO_COMODO_PADRAO, TIPOS_PORTA, ESTADOS, PADROES } from '../constants/tipos.js';
+import { TIPOS_COMODO, TIPO_COMODO_PADRAO, APELIDOS_TIPO_COMODO, TIPOS_PORTA, ESTADOS, PADROES } from '../constants/tipos.js';
 
 const ehNumero = (v) => typeof v === 'number' && Number.isFinite(v);
 const temCoordenadas = (o) => o && ['x1', 'y1', 'x2', 'y2'].every((k) => ehNumero(o[k]));
@@ -56,13 +56,19 @@ function normalizarComodos(lista) {
     return medirComodo({
       id,
       nome,
-      tipo: TIPOS_COMODO[c.tipo] ? c.tipo : TIPO_COMODO_PADRAO,
+      tipo: resolverTipo(c.tipo),
       pontos: lerPontos(c, nome),
       rotulo,
       nota: typeof c.nota === 'string' ? c.nota : '',
       medido: c.medido === true,
     });
   });
+}
+
+/** Tipo válido do cômodo; aceita apelidos antigos e cai no padrão se não reconhecer. */
+function resolverTipo(tipo) {
+  const nome = APELIDOS_TIPO_COMODO[tipo] || tipo;
+  return TIPOS_COMODO[nome] ? nome : TIPO_COMODO_PADRAO;
 }
 
 /** Aceita `pontos` (forma livre) ou x/y/largura/comprimento (retângulo). */
