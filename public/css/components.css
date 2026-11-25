@@ -223,7 +223,8 @@ dl.medidas dd { margin: 0; font-family: var(--f-mono); font-size: 18px; font-var
 .tag.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--fg); }
 
 /* Botão "Baixar PNG" (canto superior direito da planta) */
-.btn-exportar { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
+.ov-acoes { margin-left: auto; display: flex; gap: 6px; }
+.btn-exportar { display: inline-flex; align-items: center; gap: 6px; }
 .btn-exportar:disabled { opacity: .6; cursor: progress; }
 
 /* Erro nos dados da planta */

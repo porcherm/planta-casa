@@ -159,6 +159,7 @@ export function iniciarPlanta2D(store) {
   }));
 
   store.observar(marcarSelecionado);
+  store.observarDados(renderizar);
   renderizar();
   atualizarDica();
 }

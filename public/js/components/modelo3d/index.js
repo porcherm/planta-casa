@@ -1,6 +1,6 @@
 /**
- * Componente do modelo 3D (three.js): cena, câmera, controles, clique nos
- * pisos e o botão "Paredes baixas".
+ * Componente do modelo 3D (three.js): cena, câmera orbital, clique nos
+ * pisos e os botões "Paredes baixas" e "Ocultar portas".
  *
  * A cena só é criada na primeira vez que a aba 3D é aberta, e o loop de
  * renderização fica parado enquanto a aba está escondida.
@@ -9,70 +9,53 @@ import { LIMIAR_ARRASTO_PX, MODELO_3D } from '../../constants/visualizacao.js';
 import { limites } from '../../domain/geometria.js';
 import { $, lerVariavelCss } from '../../utils/dom.js';
 import { construirCena } from './construtor.js';
+import { criarCenaBase, limparGrupo, acompanharTamanho } from './cena-base.js';
+import { carregarThree, aguardarThree } from './carregar-three.js';
 
 export function iniciarModelo3D(store) {
   const host = $('view3d');
   let cena = null; // criada sob demanda
-
-  function threeDisponivel() {
-    return Boolean(window.THREE && THREE.OrbitControls);
-  }
+  let ativo = false;
 
   function mostrarFallback() {
     $('fallback-3d').hidden = false;
     return false;
   }
 
-  /** Cria renderer, cena, luzes e controles. Retorna false se o 3D não estiver disponível. */
+  /** Cria renderer, cena e controles. Retorna false se o 3D não estiver disponível. */
   function criar() {
     if (cena) return true;
-    if (!threeDisponivel()) return mostrarFallback();
-
-    let renderer;
-    try { renderer = new THREE.WebGLRenderer({ antialias: true }); } catch { return mostrarFallback(); }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MODELO_3D.pixelRatioMax));
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    host.appendChild(renderer.domElement);
-
-    const fundo = new THREE.Color(lerVariavelCss('--bg', '#04060b'));
-    const scene = new THREE.Scene();
-    scene.background = fundo;
-    scene.fog = new THREE.Fog(fundo, 24, 52);
+    if (!window.THREE?.OrbitControls) return mostrarFallback();
+    const base = criarCenaBase(host);
+    if (!base) return mostrarFallback();
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 200);
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    const controls = new THREE.OrbitControls(camera, base.renderer.domElement);
     Object.assign(controls, { enableDamping: true, dampingFactor: 0.08, maxPolarAngle: 1.48, minDistance: 2, maxDistance: 34 });
 
-    scene.add(new THREE.HemisphereLight(0xc4d4ff, 0x04060b, 0.6));
-    scene.add(new THREE.AmbientLight(0xffffff, 0.18));
-    const sol = new THREE.DirectionalLight(0xffffff, 0.85);
-    sol.position.set(6, 11, 5);
-    scene.add(sol);
-    const grade = new THREE.GridHelper(48, 96, 0x1d3463, 0x0f1b33);
-    grade.position.y = -0.06;
-    scene.add(grade);
-
-    const grupo = new THREE.Group();
-    scene.add(grupo);
-
     cena = {
-      renderer, scene, camera, controls,
-      pecas: construirCena(grupo, store.dados),
+      ...base, camera, controls,
+      pecas: null,
       paredesBaixas: false,
       portasOcultas: false,
       rodando: false,
     };
 
-    aplicarAlturaDasParedes();
-    destacarSelecionado();
+    reconstruir();
     posicionarCamera('iso');
-    redimensionar();
-
-    if ('ResizeObserver' in window) new ResizeObserver(redimensionar).observe(host);
-    else window.addEventListener('resize', redimensionar);
-
+    cena.redimensionar = acompanharTamanho(host, cena.renderer, camera);
     habilitarCliqueNosPisos();
     return true;
+  }
+
+  /** (Re)monta as peças a partir dos dados atuais, mantendo os modos ligados. */
+  function reconstruir() {
+    if (!cena) return;
+    limparGrupo(cena.grupo);
+    cena.pecas = construirCena(cena.grupo, store.dados);
+    aplicarAlturaDasParedes();
+    aplicarVisibilidadeDasPortas();
+    destacarSelecionado();
   }
 
   /** Clique (sem arrastar) num piso seleciona o cômodo. */
@@ -131,15 +114,6 @@ export function iniciarModelo3D(store) {
     cena.controls.update();
   }
 
-  function redimensionar() {
-    if (!cena) return;
-    const { width, height } = host.getBoundingClientRect();
-    if (!width || !height) return;
-    cena.renderer.setSize(width, height, false);
-    cena.camera.aspect = width / height;
-    cena.camera.updateProjectionMatrix();
-  }
-
   function loop() {
     if (!cena?.rodando) return;
     cena.controls.update();
@@ -164,16 +138,23 @@ export function iniciarModelo3D(store) {
     e.currentTarget.setAttribute('aria-pressed', String(cena.portasOcultas));
   });
   store.observar(destacarSelecionado);
+  store.observarDados(reconstruir);
 
   /* ---------- API usada pelas abas ---------- */
 
   return {
-    ativar() {
-      if (!criar()) return;
-      redimensionar();
+    /** Começa a baixar o three.js antes do clique (ao passar o mouse na aba). */
+    preparar: () => carregarThree().catch(() => {}),
+
+    async ativar() {
+      ativo = true;
+      if (!cena && !(await aguardarThree($('carregando-3d'), $('fallback-3d')))) return;
+      if (!ativo || !criar()) return; // a pessoa pode ter trocado de aba durante o download
+      cena.redimensionar();
       if (!cena.rodando) { cena.rodando = true; loop(); }
     },
     desativar() {
+      ativo = false;
       if (cena) cena.rodando = false;
     },
   };

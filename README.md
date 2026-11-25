@@ -53,7 +53,10 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
 - **Coordenadas sob o cursor**, que ajudam a posicionar portas e janelas na hora de montar a sua planta.
 - **Camadas** liga/desliga: nomes, cotas, portas e grade.
 - **Baixar PNG**: exporta a planta inteira como imagem em alta resolução, respeitando as camadas ligadas.
-- **Modelo 3D** gerado dos mesmos dados: paredes, portas abertas, janelas com vidro, sacadas com guarda-corpo, vista de cima e os modos "paredes baixas" e "ocultar portas".
+- **Imprimir em escala** (1:50, 1:75, 1:100…) em A4 ou A3, em fundo branco, com carimbo e barra de escala; a escala automática escolhe a maior que cabe na folha. Para gerar PDF, use "Salvar como PDF".
+- **Modelo 3D** gerado dos mesmos dados: paredes, portas abertas, janelas com vidro, sacadas com guarda-corpo, vista de cima e os modos "paredes baixas" e "ocultar portas". O three.js só é baixado quando uma aba 3D é aberta, então a página abre mais rápido.
+- **Caminhar**: passeio em primeira pessoa pela casa (WASD/setas, arrastar para olhar, botões na tela no celular), com colisão nas paredes e o cômodo atual destacado no painel.
+- **Editor visual**: monte a planta arrastando cômodos (as bordas grudam na distância certa da parede), redimensione pelas alças, clique numa parede para pôr portas e janelas, desfaça/refaça e baixe o `apartamento.js` pronto. O editor avisa (e marca em vermelho) cômodos que se sobrepõem ou ficaram sem espaço para a parede entre eles.
 - **Mensagens de erro claras** quando algum dado está errado, inclusive uma vírgula faltando.
 - Funciona no **celular** e é acessível pelo **teclado**.
 
@@ -72,6 +75,8 @@ A ideia é mostrar o potencial da IA como parceira de desenvolvimento: dá pra s
 ## 📐 Faça a planta da sua casa
 
 Você só vai editar **um arquivo**: [`public/js/constants/apartamento.js`](public/js/constants/apartamento.js). A planta 2D, o modelo 3D, as áreas e a lista de cômodos são gerados automaticamente a partir dele.
+
+> ✨ **Atalho: use o Editor.** Na aba **Editor** do site dá para montar a planta com o mouse, sem fazer as contas de coordenadas à mão. Quando terminar, clique em **Baixar apartamento.js** e substitua o arquivo em `public/js/constants/`. O guia abaixo continua útil para entender o formato e fazer ajustes finos.
 
 ### 1. Baixe e rode o projeto
 
@@ -324,14 +329,16 @@ planta-casa/
 │       │   ├── exemplos/       # casa de exemplo para começar
 │       │   ├── tipos.js        # tipos de cômodo e de porta
 │       │   └── visualizacao.js # ajustes de zoom e visual
-│       ├── context/            # estado compartilhado (cômodo selecionado)
-│       ├── domain/             # regras puras: validação e geometria
+│       ├── context/            # estado compartilhado (dados da casa e cômodo selecionado)
+│       ├── domain/             # regras puras: validação, geometria e colisão
 │       ├── components/
 │       │   ├── planta2d/       # desenho SVG, zoom/arrasto, gestos de toque, exportar PNG
 │       │   ├── modelo3d/       # cena three.js e construção do modelo
+│       │   ├── passeio/        # aba Caminhar: primeira pessoa com colisão
+│       │   ├── editor/         # aba Editor: operações, formulário e exportação
 │       │   ├── painel.js       # detalhes + lista de cômodos
 │       │   ├── cabecalho.js
-│       │   ├── abas.js         # alterna entre 2D e 3D
+│       │   ├── abas.js         # alterna entre 2D, 3D, Caminhar e Editor
 │       │   └── erro.js         # mostra erros nos dados
 │       └── utils/              # formatação, DOM e helpers de SVG
 ├── docs/                       # imagens do README

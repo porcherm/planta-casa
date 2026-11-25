@@ -18,10 +18,13 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/planta.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/passeio.css">
+  <link rel="stylesheet" href="css/impressao.css">
 
-  <!-- three.js (modelo 3D): carregado como global, executa antes do módulo da aplicação -->
-  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- three.js é baixado só ao abrir uma aba 3D (ver js/components/modelo3d/carregar-three.js);
+       o preconnect só adianta a conexão com o CDN, sem baixar nada -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
   <!-- Aplicação -->
   <script type="module" src="js/main.js"></script>
@@ -49,12 +52,14 @@
   </div>
 
   <main class="workspace">
-    <!-- Palco: planta 2D ou modelo 3D -->
+    <!-- Palco: planta 2D, modelo 3D, passeio ou editor -->
     <section class="stage" aria-label="Visualização da planta">
       <div class="toolbar">
         <div class="seg" role="group" aria-label="Tipo de visualização">
           <button type="button" id="tab-2d" aria-pressed="true">Planta 2D</button>
           <button type="button" id="tab-3d" aria-pressed="false">Modelo 3D</button>
+          <button type="button" id="tab-passeio" aria-pressed="false">Caminhar</button>
+          <button type="button" id="tab-editor" aria-pressed="false">Editor</button>
         </div>
         <div class="legend" aria-label="Legenda">
           <span><i class="sw interno"></i>Cômodo</span>
@@ -84,10 +89,16 @@
         <svg id="planta" role="img" aria-label="Planta baixa do apartamento"></svg>
         <div class="overlay ov-top">
           <span class="tag mono" id="coord-2d" hidden></span>
-          <button type="button" class="btn sm btn-exportar" id="baixar-png" title="Baixar a planta inteira como imagem PNG">
-            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>Baixar PNG</span>
-          </button>
+          <div class="ov-acoes">
+            <button type="button" class="btn sm btn-exportar" id="imprimir-btn" title="Imprimir ou salvar em PDF, em escala">
+              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4 9.5h8V14H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              <span>Imprimir</span>
+            </button>
+            <button type="button" class="btn sm btn-exportar" id="baixar-png" title="Baixar a planta inteira como imagem PNG">
+              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Baixar PNG</span>
+            </button>
+          </div>
         </div>
         <div class="overlay ov-bottom"><span class="tag" id="tag-2d">Toque num cômodo para ver as medidas</span></div>
       </div>
@@ -104,13 +115,79 @@
           <button type="button" class="btn" id="paredes" aria-pressed="false">Paredes baixas</button>
           <button type="button" class="btn" id="portas-3d" aria-pressed="false">Ocultar portas</button>
         </div>
+        <div class="fallback" id="carregando-3d" hidden>Carregando o 3D…</div>
         <div class="fallback" id="fallback-3d" hidden>O modelo 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
+      </div>
+
+      <!-- Caminhar: passeio em primeira pessoa -->
+      <div class="view" id="view-passeio" hidden>
+        <div id="passeio-host"></div>
+        <div class="overlay ov-top">
+          <span class="tag">Você está em: <b id="passeio-local">—</b></span>
+          <span class="tag passeio-ajuda">WASD ou setas para andar · Shift corre · arraste para olhar</span>
+        </div>
+        <div class="overlay ov-bottom passeio-base">
+          <button type="button" class="btn" id="passeio-reiniciar">Voltar ao centro do cômodo</button>
+          <div class="passeio-setas" aria-label="Controles de movimento">
+            <button type="button" class="btn ico" data-passo="KeyW" aria-label="Andar para frente">▲</button>
+            <button type="button" class="btn ico" data-passo="KeyA" aria-label="Andar para a esquerda">◀</button>
+            <button type="button" class="btn ico" data-passo="KeyS" aria-label="Andar para trás">▼</button>
+            <button type="button" class="btn ico" data-passo="KeyD" aria-label="Andar para a direita">▶</button>
+          </div>
+        </div>
+        <div class="fallback" id="carregando-passeio" hidden>Carregando o 3D…</div>
+        <div class="fallback" id="fallback-passeio" hidden>O passeio em 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
+      </div>
+
+      <!-- Editor visual -->
+      <div class="subbar" id="bar-editor" hidden>
+        <div class="grp" role="group" aria-label="Adicionar">
+          <span class="grp-t">Adicionar</span>
+          <button type="button" class="btn sm" id="ed-add-comodo">+ Cômodo</button>
+          <button type="button" class="btn sm" id="ed-add-sacada">+ Sacada</button>
+          <button type="button" class="btn sm" id="ed-add-porta" aria-pressed="false">+ Porta</button>
+          <button type="button" class="btn sm" id="ed-add-janela" aria-pressed="false">+ Janela</button>
+        </div>
+        <div class="grp">
+          <button type="button" class="btn sm" id="ed-desfazer" title="Desfazer (Ctrl+Z)" disabled>Desfazer</button>
+          <button type="button" class="btn sm" id="ed-refazer" title="Refazer (Ctrl+Y)" disabled>Refazer</button>
+          <button type="button" class="btn sm ico" id="ed-zoom-menos" aria-label="Diminuir zoom">−</button>
+          <button type="button" class="btn sm ico" id="ed-zoom-mais" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="btn sm" id="ed-zoom-ajustar">Ajustar</button>
+        </div>
+      </div>
+
+      <div class="view" id="view-editor" hidden>
+        <svg id="editor-svg" role="application" aria-label="Editor da planta"></svg>
+        <div class="overlay ov-top"><span class="tag mono" id="editor-coord" hidden></span></div>
+        <div class="overlay ov-bottom"><span class="tag" id="editor-dica"></span></div>
       </div>
     </section>
 
-    <!-- Painel lateral: cômodo selecionado + lista -->
+    <!-- Painel lateral: cômodo selecionado (ou editor) + lista -->
     <aside class="panel">
-      <div class="card detail" aria-live="polite">
+      <div class="card ed-painel" id="painel-editor" hidden>
+        <div class="ed-rascunho" id="editor-rascunho" hidden>
+          <span>Há um rascunho do editor salvo neste navegador em <b id="editor-rascunho-quando"></b>.</span>
+          <div class="ed-acoes">
+            <button type="button" class="btn sm primary" id="ed-rascunho-restaurar">Restaurar</button>
+            <button type="button" class="btn sm" id="ed-rascunho-descartar">Descartar</button>
+          </div>
+        </div>
+        <div class="ed-avisos" id="editor-avisos" role="status" hidden></div>
+        <div id="editor-form"></div>
+        <div class="ed-salvar">
+          <span class="eyebrow">Salvar</span>
+          <div class="ed-acoes">
+            <button type="button" class="btn sm primary" id="ed-baixar">Baixar apartamento.js</button>
+            <button type="button" class="btn sm" id="ed-copiar">Copiar código</button>
+            <button type="button" class="btn sm" id="ed-descartar">Descartar alterações</button>
+          </div>
+          <p class="ed-status" id="editor-status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="card detail" id="painel-detalhe" aria-live="polite">
         <span class="eyebrow">Cômodo selecionado</span>
         <h2 id="d-nome">—</h2>
         <span class="chip" id="d-tipo">—</span>
@@ -136,5 +213,42 @@
     </aside>
   </main>
 </div>
+
+<!-- Opções de impressão em escala -->
+<dialog class="dialogo" id="dialogo-imprimir" aria-labelledby="imp-titulo">
+  <h2 id="imp-titulo">Imprimir em escala</h2>
+  <div class="dialogo-campos">
+    <label class="ed-campo"><span>Escala</span>
+      <select id="imp-escala">
+        <option value="auto" selected>Automática (maior que couber)</option>
+        <option value="50">1:50</option>
+        <option value="75">1:75</option>
+        <option value="100">1:100</option>
+        <option value="125">1:125</option>
+        <option value="150">1:150</option>
+        <option value="200">1:200</option>
+      </select>
+    </label>
+    <label class="ed-campo"><span>Papel</span>
+      <select id="imp-papel">
+        <option value="A4" selected>A4</option>
+        <option value="A3">A3</option>
+      </select>
+    </label>
+    <label class="ed-campo"><span>Orientação</span>
+      <select id="imp-orientacao">
+        <option value="auto" selected>Automática</option>
+        <option value="retrato">Retrato</option>
+        <option value="paisagem">Paisagem</option>
+      </select>
+    </label>
+  </div>
+  <p class="dialogo-resumo" id="imp-resumo" aria-live="polite"></p>
+  <p class="dialogo-nota">Na janela de impressão, deixe a escala em <b>100%</b> (ou "Tamanho real") para as medidas saírem certas. Para gerar um PDF, escolha <b>"Salvar como PDF"</b> como impressora.</p>
+  <div class="ed-acoes">
+    <button type="button" class="btn primary" id="imp-confirmar">Imprimir / Salvar PDF</button>
+    <button type="button" class="btn" id="imp-cancelar">Cancelar</button>
+  </div>
+</dialog>
 </body>
 </html>
