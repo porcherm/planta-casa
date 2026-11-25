@@ -19,8 +19,8 @@
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--wait); flex: none; }
 .dot.ok { background: var(--ok); }
 /* Sobre o petróleo os pontos precisam ser claros para aparecer */
-.top .dot { background: #F2B84B; }
-.top .dot.ok { background: #7AD6AC; }
+.top .dot { background: var(--coral); }
+.top .dot.ok { background: var(--marfim); }
 
 /* ---------- Botões ----------
    Secundário (padrão): borda neutra → hover: borda petróleo + tinta (H3+H4)

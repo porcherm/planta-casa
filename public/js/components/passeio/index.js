@@ -73,7 +73,7 @@ export function iniciarPasseio(store) {
 
   /** Teto em cada cômodo interno, para a sensação de estar dentro de casa. */
   function adicionarTetos(grupo, dados) {
-    const material = new THREE.MeshBasicMaterial({ color: '#cfc5b6', side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({ color: '#E6DDCE', side: THREE.DoubleSide });
     const { cx, cz } = centroDaCena(dados);
     for (const r of dados.comodos) {
       if (TIPOS_COMODO[r.tipo].externo) continue;

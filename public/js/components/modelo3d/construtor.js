@@ -13,13 +13,14 @@ const cor = (valor) => new THREE.Color(valor);
 function criarMateriais() {
   const padrao = (opcoes) => new THREE.MeshStandardMaterial({ metalness: 0, ...opcoes });
   return {
-    parede: padrao({ color: cor(lerVariavelCss('--wall-3d', '#F3EEE6')), roughness: 0.92 }),
-    guarda: padrao({ color: cor(lerVariavelCss('--rail', '#5F7F99')), roughness: 0.5, metalness: 0.2, transparent: true, opacity: 0.55 }),
+    parede: padrao({ color: cor(lerVariavelCss('--wall-3d', '#E6DDCE')), roughness: 0.92 }),
+    guarda: padrao({ color: cor(lerVariavelCss('--rail', '#4F7698')), roughness: 0.5, metalness: 0.2, transparent: true, opacity: 0.55 }),
     vao: padrao({ color: cor(TIPOS_COMODO.circulacao.cor3d), roughness: 0.85 }),
-    vidro: padrao({ color: cor(lerVariavelCss('--glass', '#6FA3C9')), roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.4 }),
-    folhaPorta: padrao({ color: cor('#d8cdbb'), roughness: 0.6 }),
-    vidroFosco: padrao({ color: cor('#eef2f4'), roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.9 }),
-    madeira: padrao({ color: cor('#5b3b28'), roughness: 0.7 }),
+    vidro: padrao({ color: cor(lerVariavelCss('--glass', '#7FA3BF')), roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.4 }),
+    // Só tons da paleta: folha de porta em marfim escuro, moldura da janela losango em petróleo
+    folhaPorta: padrao({ color: cor('#B8A88F'), roughness: 0.6 }),
+    vidroFosco: padrao({ color: cor('#F3EEE6'), roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.9 }),
+    madeira: padrao({ color: cor(lerVariavelCss('--petroleo', '#1B4E77')), roughness: 0.7 }),
     aresta: new THREE.LineBasicMaterial({ color: cor(lerVariavelCss('--petroleo', '#1B4E77')), transparent: true, opacity: 0.55 }),
   };
 }

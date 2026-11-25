@@ -52,7 +52,7 @@ export function escolherLayout(desenho, { papel, orientacao, escala }) {
   return montar(escalas[escalas.length - 1], orientacoes[0]);
 }
 
-/** Barra de escala (SVG em mm) com 5 trechos alternados preto/branco. */
+/** Barra de escala (SVG em mm) com 5 trechos alternados petróleo/branco. */
 function desenharBarraDeEscala(escala) {
   const trechoM = escala <= 60 ? 0.5 : escala <= 125 ? 1 : 2;
   const trechoMm = emMm(trechoM * 100, escala);
@@ -60,11 +60,11 @@ function desenharBarraDeEscala(escala) {
   const total = trechoMm * n;
   let s = '';
   for (let i = 0; i < n; i++) {
-    s += `<rect x="${i * trechoMm}" y="${topo}" width="${trechoMm}" height="${altura}" fill="${i % 2 ? '#fff' : '#111'}" stroke="#111" stroke-width="0.2"/>`;
+    s += `<rect x="${i * trechoMm}" y="${topo}" width="${trechoMm}" height="${altura}" fill="${i % 2 ? '#fff' : '#1B4E77'}" stroke="#1B4E77" stroke-width="0.2"/>`;
   }
   for (let i = 0; i <= n; i++) {
     const rotulo = `${(i * trechoM).toLocaleString('pt-BR')}${i === n ? ' m' : ''}`;
-    s += `<text x="${i * trechoMm}" y="2.6" font-size="2.6" text-anchor="${i === 0 ? 'start' : i === n ? 'end' : 'middle'}" fill="#111">${rotulo}</text>`;
+    s += `<text x="${i * trechoMm}" y="2.6" font-size="2.6" text-anchor="${i === 0 ? 'start' : i === n ? 'end' : 'middle'}" fill="#0F2233">${rotulo}</text>`;
   }
   return `<svg class="imp-barra" width="${total + 0.4}mm" height="${topo + altura + 0.4}mm" viewBox="-0.2 0 ${total + 0.4} ${topo + altura + 0.4}">${s}</svg>`;
 }

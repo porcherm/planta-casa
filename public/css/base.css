@@ -48,24 +48,27 @@
   /* ---------- Cômodos ---------- */
   --room-interno: #FBF8F3;
   --room-circulacao: #E4D9C7;
-  --room-sacada: #D9E2E9;
+  --room-sacada: #DDE5EA;       /* petróleo bem claro */
   --room-hover: #FCEEE6;
   --room-sel: #F8D9CB;
 
   /* ---------- Elementos da planta ---------- */
   --wall: var(--petroleo);
-  --wall-3d: #F3EEE6;
-  --rail: #5F7F99;
-  --glass: #6FA3C9;
+  --wall-3d: #E6DDCE;           /* marfim: a luz do 3D clareia um pouco */
+  --rail: #4F7698;              /* petróleo médio */
+  --glass: #7FA3BF;             /* petróleo claro (vidro) */
   --grid: #E2D9CB;
   --grid-strong: #D3C7B4;
 
-  /* ---------- Estados ---------- */
-  --ok: #1F6444;
-  --wait: #7A4E00;
-  --danger: #A61E14;
-  --danger-soft: rgba(166, 30, 20, .07);
-  --wait-soft: rgba(122, 78, 0, .07);
+  /* ---------- Estados (só tons da paleta; o texto/ícone sempre acompanha) ----------
+     ok      = petróleo
+     aviso   = coral escurecido   (6,4:1 sobre os cards)
+     erro    = coral bem escuro   (8,5:1 sobre os cards) + tracejado/ícone/texto */
+  --ok: var(--petroleo);
+  --wait: #9A3814;
+  --danger: #7E2A0F;
+  --danger-soft: rgba(126, 42, 15, .08);
+  --wait-soft: rgba(228, 101, 60, .10);
 
   /* ---------- Tipografia ----------
      Escala 1.2 a partir de 16px: 12 (micro) · 14 (apoio) · 16 · 20 · 24 · 28 */

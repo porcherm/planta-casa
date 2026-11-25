@@ -34,7 +34,7 @@
 
 /* Cômodos com problema (sobreposição / sem espaço para a parede) */
 .ed-problema {
-  fill: rgba(166, 30, 20, .12);
+  fill: rgba(126, 42, 15, .14);
   stroke: var(--danger);
   stroke-width: 2.5;
   stroke-dasharray: 8 5;
@@ -107,7 +107,7 @@
 .ed-check input { accent-color: var(--secondary); width: 18px; height: 18px; margin: 0; }
 
 .ed-acoes { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s4); }
-.btn.perigo { border-color: rgba(166, 30, 20, .5); color: var(--danger); background: transparent; }
+.btn.perigo { border-color: rgba(126, 42, 15, .5); color: var(--danger); background: transparent; }
 .btn.perigo:hover { border-color: var(--danger); background: var(--danger-soft); }
 .ed-dica { margin: var(--s4) 0 0; font-size: var(--t-sm); color: var(--muted); }
 
@@ -134,7 +134,7 @@
   color: var(--fg);
   cursor: pointer;
 }
-.ed-avisos button:hover { background: rgba(166, 30, 20, .1); }
+.ed-avisos button:hover { background: rgba(126, 42, 15, .1); }
 
 /* ---------- Salvar ---------- */
 .ed-salvar { border-top: 1px solid var(--line); padding-top: var(--s5); }

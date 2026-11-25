@@ -21,12 +21,13 @@ export function criarCenaBase(host) {
   scene.background = fundo;
   scene.fog = new THREE.Fog(fundo, 24, 52);
 
-  scene.add(new THREE.HemisphereLight(0xfff8ee, 0x8a7d6a, 0.6));
-  scene.add(new THREE.AmbientLight(0xffffff, 0.22));
-  const sol = new THREE.DirectionalLight(0xffffff, 0.8);
+  // Luz somando ~1: mais que isso estoura os tons claros do marfim para branco
+  scene.add(new THREE.HemisphereLight(0xfbf8f3, 0xcdbfaa, 0.45));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.12));
+  const sol = new THREE.DirectionalLight(0xffffff, 0.55);
   sol.position.set(6, 11, 5);
   scene.add(sol);
-  const grade = new THREE.GridHelper(48, 96, 0xb9ab95, 0xd3c8b7);
+  const grade = new THREE.GridHelper(48, 96, 0xcdbfaa, 0xd8cdbd);
   grade.position.y = -0.06;
   scene.add(grade);
 

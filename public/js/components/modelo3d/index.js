@@ -95,11 +95,12 @@ export function iniciarModelo3D(store) {
 
   function destacarSelecionado() {
     if (!cena) return;
+    // Pinta o piso selecionado de coral (somar brilho só clarearia o marfim)
     const destaque = new THREE.Color(lerVariavelCss('--accent', '#E4653C'));
     for (const piso of cena.pecas.pisos) {
       const selecionado = piso.userData.id === store.selecionadoId;
-      piso.material.emissive.copy(selecionado ? destaque : new THREE.Color(0x000000));
-      piso.material.emissiveIntensity = selecionado ? 0.45 : 0;
+      piso.userData.corOriginal ??= piso.material.color.clone();
+      piso.material.color.copy(selecionado ? destaque : piso.userData.corOriginal);
     }
   }
 

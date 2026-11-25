@@ -37,27 +37,27 @@
     align-items: center;
     gap: 4mm;
     break-inside: avoid;
-    color: #111;
+    color: #0F2233;
     font-family: var(--f-body);
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
 
-    /* Paleta para papel: fundo branco, paredes pretas, sem gastar tinta à toa */
-    --fg: #111;
-    --muted: #555;
-    --accent: #1B4E77;
-    --accent-ink: #1B4E77;
-    --secondary: #111;
-    --glass: #1B4E77;
-    --wait: #9a6200;
-    --wall: #111;
-    --rail: #444;
+    /* Paleta para papel: fundo branco, paredes em petróleo, tons claros da paleta */
+    --fg: #0F2233;
+    --muted: #44566A;
+    --accent: #E4653C;
+    --accent-ink: #9A3814;
+    --secondary: #1B4E77;
+    --glass: #7FA3BF;
+    --wait: #9A3814;
+    --wall: #1B4E77;
+    --rail: #4F7698;
     --bg: #fff;
     --surface-2: #fff;
-    --line-strong: #9aa3b2;
+    --line-strong: #6F7E89;
     --room-interno: #fff;
-    --room-circulacao: #f0f2f6;
-    --room-sacada: #f7f7f7;
+    --room-circulacao: #F3EEE6;
+    --room-sacada: #EEF2F5;
     --room-sel: #fff;
   }
 
@@ -80,14 +80,14 @@
     justify-content: space-between;
     align-items: flex-end;
     gap: 6mm;
-    border-top: .3mm solid #111;
+    border-top: .3mm solid #1B4E77;
     padding-top: 2mm;
     font-size: 9pt;
   }
   .imp-carimbo > div { display: flex; flex-direction: column; gap: 1mm; }
   .imp-titulo strong { font-family: var(--f-display); font-size: 13pt; }
   .imp-titulo span,
-  .imp-info span { color: #444; }
+  .imp-info span { color: #44566A; }
   .imp-escala { align-items: center; }
   .imp-escala span { font-family: var(--f-mono); font-size: 8pt; }
   .imp-barra text { font-family: var(--f-mono); }
