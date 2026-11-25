@@ -25,15 +25,22 @@ function criarMateriais() {
 }
 
 /**
+ * Centro da planta em metros. A cena é deslocada por ele para ficar na origem.
+ * Um ponto da planta (x, y) em cm vira (x/100 - cx, y/100 - cz) na cena.
+ */
+export function centroDaCena(dados) {
+  const F = limites(dados.comodos, false);
+  return { cx: (F.minX + F.w / 2) / 100, cz: (F.minY + F.h / 2) / 100 };
+}
+
+/**
  * Cria todas as peças dentro de `grupo` e devolve referências para as que
  * mudam depois (pisos para clique/destaque; paredes e afins para "paredes baixas").
  */
 export function construirCena(grupo, dados) {
   const pecas = { pisos: [], paredes: [], vergas: [], peitoris: [], folhas: [] };
 
-  const F = limites(dados.comodos, false);
-  const cx = (F.minX + F.w / 2) / 100;
-  const cz = (F.minY + F.h / 2) / 100;
+  const { cx, cz } = centroDaCena(dados);
   const esp = (dados.parede || 12) / 100;
   const peDireito = dados.peDireito / 100;
   const alturaPorta = dados.alturaPorta / 100;
@@ -79,7 +86,8 @@ export function construirCena(grupo, dados) {
   // Paredes e guarda-corpos
   const { paredes, guardas } = gerarParedes(dados, true);
   for (const s of paredes) {
-    const m = bloco(s, mat.parede, 1, 0, esp, esp);
+    // Já na altura do pé-direito (o modo "paredes baixas" do Modelo 3D reajusta depois)
+    const m = bloco(s, mat.parede, peDireito, 0, esp, esp);
     m.add(new THREE.LineSegments(arestasCubo, mat.aresta));
     grupo.add(m);
     pecas.paredes.push(m);

@@ -8,14 +8,19 @@
  * - semParede: não gera paredes ao redor.
  */
 export const TIPOS_COMODO = {
-  seco: { rotulo: 'Área seca', cor3d: '#21406f' },
-  molhado: { rotulo: 'Área molhada', cor3d: '#1b5372' },
+  interno: { rotulo: 'Cômodo', cor3d: '#21406f' },
   circulacao: { rotulo: 'Circulação', cor3d: '#172a4c' },
   sacada: { rotulo: 'Sacada', cor3d: '#132744', externo: true },
   indefinido: { rotulo: 'A confirmar', cor3d: '#141c2c', semParede: true },
 };
 
-export const TIPO_COMODO_PADRAO = 'seco';
+export const TIPO_COMODO_PADRAO = 'interno';
+
+/** Nomes antigos que continuam aceitos nos dados (compatibilidade). */
+export const APELIDOS_TIPO_COMODO = {
+  seco: 'interno',
+  molhado: 'interno',
+};
 
 export const TIPOS_PORTA = ['porta', 'entrada', 'correr', 'vao'];
 

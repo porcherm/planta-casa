@@ -9,8 +9,13 @@ import { escaparHtml } from '../../utils/dom.js';
 import { formatarMetros, formatarArea, formatarDimensoes } from '../../utils/formatar.js';
 import { pontosSvg, linha, texto, girar, grupo } from '../../utils/svg.js';
 
-/** Desenha a planta completa. Retorna a marcação e o viewBox inicial. */
-export function desenharPlanta(dados) {
+/**
+ * Desenha a planta completa. Retorna a marcação e o viewBox inicial.
+ *
+ * `prefixo` diferencia os ids internos (padrões, recortes) quando há mais de
+ * um SVG da planta na mesma página, como na planta 2D e no editor.
+ */
+export function desenharPlanta(dados, { prefixo = '' } = {}) {
   const total = limites(dados.comodos, false);
   const interno = limites(dados.comodos, true);
   const m = PLANTA_2D.margem;
@@ -18,9 +23,9 @@ export function desenharPlanta(dados) {
   const { paredes, guardas } = gerarParedes(dados);
 
   const markup = [
-    desenharDefs(dados.comodos, interno),
-    desenharGrade(viewBox),
-    desenharPisos(dados.comodos),
+    desenharDefs(dados.comodos, interno, prefixo),
+    desenharGrade(viewBox, prefixo),
+    desenharPisos(dados.comodos, prefixo),
     desenharVaos(dados),
     guardas.map((s) => linha('guarda', ...s)).join(''),
     paredes.map((s) => linha('parede', ...s)).join(''),
@@ -29,7 +34,7 @@ export function desenharPlanta(dados) {
     grupo('cam-nomes', dados.comodos.map(desenharRotulo).join('')),
     desenharCotas(total, interno),
     // Camadas preenchidas depois, conforme a interação
-    '<g id="medidas-sel" class="cam-cotas"></g><g id="regua-g"></g>',
+    `<g id="${prefixo}medidas-sel" class="cam-cotas"></g><g id="${prefixo}regua-g"></g>`,
   ].join('');
 
   return { markup, viewBox };
@@ -37,33 +42,33 @@ export function desenharPlanta(dados) {
 
 /* ---------- Fundo e pisos ---------- */
 
-function desenharDefs(comodos, interno) {
+function desenharDefs(comodos, interno, prefixo) {
   const origem = `x="${interno.minX}" y="${interno.minY}"`;
   const clips = comodos
-    .map((r) => `<clipPath id="clip-${r.id}"><polygon points="${pontosSvg(r.pontos)}"/></clipPath>`)
+    .map((r) => `<clipPath id="${prefixo}clip-${r.id}"><polygon points="${pontosSvg(r.pontos)}"/></clipPath>`)
     .join('');
   return '<defs>' +
-    `<pattern id="g50" width="50" height="50" patternUnits="userSpaceOnUse" ${origem}><path class="g-fina" d="M50 0H0V50"/></pattern>` +
-    `<pattern id="g100" width="100" height="100" patternUnits="userSpaceOnUse" ${origem}><path class="g-forte" d="M100 0H0V100"/></pattern>` +
-    '<pattern id="hachura" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hach" x1="0" y1="0" x2="0" y2="16"/></pattern>' +
+    `<pattern id="${prefixo}g50" width="50" height="50" patternUnits="userSpaceOnUse" ${origem}><path class="g-fina" d="M50 0H0V50"/></pattern>` +
+    `<pattern id="${prefixo}g100" width="100" height="100" patternUnits="userSpaceOnUse" ${origem}><path class="g-forte" d="M100 0H0V100"/></pattern>` +
+    `<pattern id="${prefixo}hachura" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hach" x1="0" y1="0" x2="0" y2="16"/></pattern>` +
     clips +
     '</defs>';
 }
 
 /** Grade bem maior que a vista, para continuar visível ao arrastar e afastar. */
-function desenharGrade(vb) {
+function desenharGrade(vb, prefixo) {
   const x = vb.x - vb.w * 4, y = vb.y - vb.h * 4, w = vb.w * 9, h = vb.h * 9;
-  const ret = (padrao) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${padrao})"/>`;
+  const ret = (padrao) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${prefixo}${padrao})"/>`;
   return grupo('cam-grade', ret('g50') + ret('g100'));
 }
 
-function desenharPisos(comodos) {
+function desenharPisos(comodos, prefixo) {
   return comodos.map((r) => {
     const pts = pontosSvg(r.pontos);
     const rotuloAcessivel = `${escaparHtml(r.nome)}, ${formatarArea(r.area)}`;
     return `<g class="room" data-id="${r.id}" tabindex="0" role="button" aria-label="${rotuloAcessivel}">` +
       `<polygon class="piso ${r.tipo}" points="${pts}"/>` +
-      `<polygon class="anel" clip-path="url(#clip-${r.id})" points="${pts}"/></g>`;
+      `<polygon class="anel" clip-path="url(#${prefixo}clip-${r.id})" points="${pts}"/></g>`;
   }).join('');
 }
 
@@ -112,12 +117,16 @@ function desenharFolha(f, classe) {
     `<path class="porta-arco" d="M${f.o[0]} ${f.o[1]} A${f.w} ${f.w} 0 0 ${sentido} ${f.e[0]} ${f.e[1]}"/>`;
 }
 
-/** Texto "ENTRADA" do lado de fora do apartamento. */
+/**
+ * Texto "ENTRADA" do lado de fora do apartamento.
+ * Em parede vertical, fica de pé ao longo da parede, para não sair do desenho.
+ */
 function rotuloEntrada(a, b, horizontal, interno) {
   const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
   const cx = interno.minX + interno.w / 2, cy = interno.minY + interno.h / 2;
   if (horizontal) return texto('ent-txt', mx, my > cy ? my + 42 : my - 28, 'ENTRADA');
-  return texto('ent-txt', mx > cx ? mx + 70 : mx - 70, my + 6, 'ENTRADA');
+  const x = mx > cx ? mx + 30 : mx - 18;
+  return texto('ent-txt', x, my, 'ENTRADA', girar(-90, x, my));
 }
 
 function desenharPorta(p, interno) {

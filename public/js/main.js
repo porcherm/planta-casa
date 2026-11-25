@@ -9,8 +9,11 @@ import { normalizarDados } from './domain/normalizar.js';
 import { criarStore } from './context/store.js';
 import { renderizarCabecalho } from './components/cabecalho.js';
 import { iniciarPlanta2D } from './components/planta2d/index.js';
+import { iniciarImpressao } from './components/planta2d/imprimir.js';
 import { iniciarPainel } from './components/painel.js';
 import { iniciarModelo3D } from './components/modelo3d/index.js';
+import { iniciarPasseio } from './components/passeio/index.js';
+import { iniciarEditor } from './components/editor/index.js';
 import { iniciarAbas } from './components/abas.js';
 import { mostrarErroDeDados } from './components/erro.js';
 
@@ -18,7 +21,7 @@ async function carregarDados() {
   try {
     const { APARTAMENTO } = await import('./constants/apartamento.js');
     if (!APARTAMENTO) return { ok: false, erro: 'O arquivo precisa exportar "APARTAMENTO" (export const APARTAMENTO = { ... }).' };
-    return normalizarDados(APARTAMENTO);
+    return { ...normalizarDados(APARTAMENTO), bruto: APARTAMENTO };
   } catch (e) {
     console.error(e);
     return { ok: false, erro: `O arquivo de dados tem um erro de escrita: ${e.message}. Procure vírgulas, chaves { } ou colchetes [ ] faltando.` };
@@ -32,7 +35,13 @@ if (!resultado.ok) {
 } else {
   const store = criarStore(resultado.data, resultado.data.comodoInicial);
   renderizarCabecalho(store.dados);
+  store.observarDados(renderizarCabecalho);
   iniciarPlanta2D(store);
+  iniciarImpressao(store);
   iniciarPainel(store);
-  iniciarAbas(iniciarModelo3D(store));
+  iniciarAbas({
+    modelo3d: iniciarModelo3D(store),
+    passeio: iniciarPasseio(store),
+    editor: iniciarEditor(store, resultado.bruto),
+  });
 }

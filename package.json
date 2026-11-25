@@ -1,7 +1,7 @@
 {
-  "name": "planta-casa",
-  "version": "1.0.0",
-  "description": "Planta 2D interativa e modelo 3D de um apartamento, em JavaScript puro, construído inteiramente com IA.",
+  "name": "roomprint",
+  "version": "1.1.0",
+  "description": "Roomprint: planta 2D interativa e modelo 3D de casas, em JavaScript puro, construído inteiramente com IA.",
   "private": true,
   "type": "module",
   "scripts": {

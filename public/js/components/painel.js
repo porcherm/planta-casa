@@ -16,6 +16,10 @@ export function iniciarPainel(store) {
   renderizarLista(store.dados);
   renderizarDetalhes(store);
   store.observar(() => renderizarDetalhes(store));
+  store.observarDados((dados) => {
+    renderizarLista(dados);
+    renderizarDetalhes(store);
+  });
 }
 
 function renderizarDetalhes(store) {

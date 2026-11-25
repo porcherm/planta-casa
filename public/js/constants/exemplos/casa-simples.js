@@ -33,11 +33,11 @@ export const APARTAMENTO = {
   alturaPorta: 210,
 
   comodos: [
-    { id: 'sala', nome: 'Sala', tipo: 'seco', medido: true, x: 0, y: 0, largura: 400, comprimento: 350 },
-    { id: 'quarto', nome: 'Quarto', tipo: 'seco', medido: true, x: 412, y: 0, largura: 300, comprimento: 350 },
-    { id: 'cozinha', nome: 'Cozinha', tipo: 'molhado', medido: true, x: 0, y: 362, largura: 400, comprimento: 220 },
+    { id: 'sala', nome: 'Sala', tipo: 'interno', medido: true, x: 0, y: 0, largura: 400, comprimento: 350 },
+    { id: 'quarto', nome: 'Quarto', tipo: 'interno', medido: true, x: 412, y: 0, largura: 300, comprimento: 350 },
+    { id: 'cozinha', nome: 'Cozinha', tipo: 'interno', medido: true, x: 0, y: 362, largura: 400, comprimento: 220 },
     {
-      id: 'banheiro', nome: 'Banheiro', tipo: 'molhado', medido: true, x: 412, y: 362, largura: 300, comprimento: 220,
+      id: 'banheiro', nome: 'Banheiro', tipo: 'interno', medido: true, x: 412, y: 362, largura: 300, comprimento: 220,
       nota: 'Exemplo de aviso: confirmar a altura da janela.',
     },
     // A sacada encosta na face de fora da parede de cima da Sala (y = -12)

@@ -1,21 +1,42 @@
 /**
- * Alterna entre a planta 2D e o modelo 3D.
+ * Alterna entre as abas do palco: Planta 2D, Modelo 3D, Caminhar e Editor.
+ *
+ * Cada aba diz quais elementos mostra; todos os outros ficam escondidos.
+ * O controlador (quando existe) é ativado depois que os elementos aparecem,
+ * porque 3D e editor precisam saber o tamanho real da área na tela.
  */
 import { $ } from '../utils/dom.js';
 
-export function iniciarAbas(modelo3d) {
-  function mostrar(aba) {
-    const em3d = aba === '3d';
-    $('tab-2d').setAttribute('aria-pressed', String(!em3d));
-    $('tab-3d').setAttribute('aria-pressed', String(em3d));
-    $('view-2d').hidden = em3d;
-    $('bar-2d').hidden = em3d;
-    $('view-3d').hidden = !em3d;
+export function iniciarAbas({ modelo3d, passeio, editor }) {
+  const ABAS = {
+    '2d': { botao: 'tab-2d', mostrar: ['view-2d', 'bar-2d', 'painel-detalhe'] },
+    '3d': { botao: 'tab-3d', mostrar: ['view-3d', 'painel-detalhe'], controlador: modelo3d },
+    passeio: { botao: 'tab-passeio', mostrar: ['view-passeio', 'painel-detalhe'], controlador: passeio },
+    editor: { botao: 'tab-editor', mostrar: ['view-editor', 'bar-editor', 'painel-editor'], controlador: editor },
+  };
+  const todosOsElementos = [...new Set(Object.values(ABAS).flatMap((a) => a.mostrar))];
+  let atual = '2d';
 
-    if (em3d) modelo3d.ativar();
-    else modelo3d.desativar();
+  function mostrar(nome) {
+    const aba = ABAS[nome];
+    ABAS[atual].controlador?.desativar();
+
+    for (const id of todosOsElementos) $(id).hidden = !aba.mostrar.includes(id);
+    for (const [chave, { botao }] of Object.entries(ABAS)) {
+      $(botao).setAttribute('aria-pressed', String(chave === nome));
+    }
+
+    atual = nome;
+    aba.controlador?.ativar();
   }
 
-  $('tab-2d').addEventListener('click', () => mostrar('2d'));
-  $('tab-3d').addEventListener('click', () => mostrar('3d'));
+  for (const [nome, { botao, controlador }] of Object.entries(ABAS)) {
+    const el = $(botao);
+    el.addEventListener('click', () => { if (nome !== atual) mostrar(nome); });
+    // Adianta o que for pesado (ex.: baixar o three.js) assim que a pessoa mira na aba
+    if (controlador?.preparar) {
+      el.addEventListener('pointerenter', controlador.preparar, { once: true });
+      el.addEventListener('focus', controlador.preparar, { once: true });
+    }
+  }
 }

@@ -1,0 +1,89 @@
+/* ==========================================================================
+   Impressão em escala — janela de opções (na tela) e folha impressa
+   ========================================================================== */
+
+/* Janela de opções */
+.dialogo {
+  width: min(440px, calc(100vw - 32px));
+  box-sizing: border-box;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 20px;
+}
+.dialogo::backdrop { background: rgba(4, 6, 11, .7); backdrop-filter: blur(2px); }
+.dialogo h2 { margin: 0 0 14px; font-family: var(--f-display); font-weight: 700; font-size: 20px; }
+.dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dialogo-campos .ed-campo:first-child { grid-column: 1 / -1; }
+.dialogo-resumo { margin: 14px 0 0; font-family: var(--f-mono); font-size: 13px; color: var(--ok); }
+.dialogo-resumo.erro { color: var(--danger); }
+.dialogo-nota { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* A folha só existe na impressão */
+#impressao { display: none; }
+
+@media print {
+  html, body { background: #fff !important; }
+  body { margin: 0; padding: 0 !important; }
+  body > *:not(#impressao) { display: none !important; }
+
+  #impressao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4mm;
+    break-inside: avoid;
+    color: #111;
+    font-family: var(--f-body);
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+
+    /* Paleta para papel: fundo branco, paredes pretas, sem gastar tinta à toa */
+    --fg: #111;
+    --muted: #555;
+    --accent: #1f4fbf;
+    --wait: #9a6200;
+    --wall: #111;
+    --rail: #444;
+    --bg: #fff;
+    --surface-2: #fff;
+    --line-strong: #9aa3b2;
+    --room-interno: #fff;
+    --room-circulacao: #f0f2f6;
+    --room-sacada: #f7f7f7;
+    --room-sel: #fff;
+  }
+
+  #impressao { box-sizing: border-box; }
+  #impressao .imp-planta { display: block; margin: auto 0; } /* centraliza no espaço acima do carimbo */
+  #impressao .cam-grade,
+  #impressao .room .anel { display: none; }
+  #impressao .room .piso.indefinido { fill: url(#imp-hachura); }
+
+  /* Camadas desligadas em "Mostrar" também saem da impressão */
+  #impressao .sem-nomes .cam-nomes,
+  #impressao .sem-cotas .cam-cotas,
+  #impressao .sem-portas .cam-portas { display: none; }
+
+  /* Carimbo: nome, barra de escala e informações */
+  .imp-carimbo {
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 6mm;
+    border-top: .3mm solid #111;
+    padding-top: 2mm;
+    font-size: 9pt;
+  }
+  .imp-carimbo > div { display: flex; flex-direction: column; gap: 1mm; }
+  .imp-titulo strong { font-family: var(--f-display); font-size: 13pt; }
+  .imp-titulo span,
+  .imp-info span { color: #444; }
+  .imp-escala { align-items: center; }
+  .imp-escala span { font-family: var(--f-mono); font-size: 8pt; }
+  .imp-barra text { font-family: var(--f-mono); }
+  .imp-info { align-items: flex-end; text-align: right; }
+}

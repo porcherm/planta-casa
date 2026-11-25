@@ -12,7 +12,7 @@ export function renderizarCabecalho(dados) {
 
   $('nome-ape').textContent = dados.nome;
   $('titulo').textContent = dados.titulo;
-  document.title = `${dados.nome} · Planta do Apê`;
+  document.title = `${dados.nome} · Roomprint`;
   $('badge-txt').textContent = (dados.estado === 'rascunho' && medidos)
     ? `Medidos: ${medidos} de ${internos.length} cômodos`
     : estado.badge;
