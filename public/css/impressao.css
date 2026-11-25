@@ -12,7 +12,7 @@
   border-radius: 16px;
   padding: 20px;
 }
-.dialogo::backdrop { background: rgba(4, 6, 11, .7); backdrop-filter: blur(2px); }
+.dialogo::backdrop { background: rgba(15, 34, 51, .45); backdrop-filter: blur(2px); }
 .dialogo h2 { margin: 0 0 14px; font-family: var(--f-display); font-weight: 700; font-size: 20px; }
 .dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .dialogo-campos .ed-campo:first-child { grid-column: 1 / -1; }
@@ -42,7 +42,10 @@
     /* Paleta para papel: fundo branco, paredes pretas, sem gastar tinta à toa */
     --fg: #111;
     --muted: #555;
-    --accent: #1f4fbf;
+    --accent: #1B4E77;
+    --accent-ink: #1B4E77;
+    --secondary: #111;
+    --glass: #1B4E77;
     --wait: #9a6200;
     --wall: #111;
     --rail: #444;

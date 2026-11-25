@@ -13,14 +13,14 @@ const cor = (valor) => new THREE.Color(valor);
 function criarMateriais() {
   const padrao = (opcoes) => new THREE.MeshStandardMaterial({ metalness: 0, ...opcoes });
   return {
-    parede: padrao({ color: cor(lerVariavelCss('--wall', '#d6dff0')), roughness: 0.92 }),
-    guarda: padrao({ color: cor(lerVariavelCss('--rail', '#7f93bd')), roughness: 0.5, metalness: 0.2, transparent: true, opacity: 0.55 }),
+    parede: padrao({ color: cor(lerVariavelCss('--wall-3d', '#F3EEE6')), roughness: 0.92 }),
+    guarda: padrao({ color: cor(lerVariavelCss('--rail', '#5F7F99')), roughness: 0.5, metalness: 0.2, transparent: true, opacity: 0.55 }),
     vao: padrao({ color: cor(TIPOS_COMODO.circulacao.cor3d), roughness: 0.85 }),
-    vidro: padrao({ color: cor(lerVariavelCss('--accent', '#4f86ff')), roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.32 }),
-    folhaPorta: padrao({ color: cor('#b9c4d8'), roughness: 0.6 }),
-    vidroFosco: padrao({ color: cor('#dfe7f3'), roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.9 }),
+    vidro: padrao({ color: cor(lerVariavelCss('--glass', '#6FA3C9')), roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.4 }),
+    folhaPorta: padrao({ color: cor('#d8cdbb'), roughness: 0.6 }),
+    vidroFosco: padrao({ color: cor('#eef2f4'), roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.9 }),
     madeira: padrao({ color: cor('#5b3b28'), roughness: 0.7 }),
-    aresta: new THREE.LineBasicMaterial({ color: 0x4f86ff, transparent: true, opacity: 0.35 }),
+    aresta: new THREE.LineBasicMaterial({ color: cor(lerVariavelCss('--petroleo', '#1B4E77')), transparent: true, opacity: 0.55 }),
   };
 }
 
@@ -62,7 +62,7 @@ export function construirCena(grupo, dados) {
     return m;
   }
 
-  /** Bloco de parede com contorno azul e registrado na lista indicada. */
+  /** Bloco de parede com contorno azul petróleo e registrado na lista indicada. */
   function blocoDeParede(segmento, altura, base, lista) {
     const m = bloco(segmento, mat.parede, altura, base, esp, 0);
     m.add(new THREE.LineSegments(arestasCubo, mat.aresta));

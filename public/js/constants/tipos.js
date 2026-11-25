@@ -8,10 +8,10 @@
  * - semParede: não gera paredes ao redor.
  */
 export const TIPOS_COMODO = {
-  interno: { rotulo: 'Cômodo', cor3d: '#21406f' },
-  circulacao: { rotulo: 'Circulação', cor3d: '#172a4c' },
-  sacada: { rotulo: 'Sacada', cor3d: '#132744', externo: true },
-  indefinido: { rotulo: 'A confirmar', cor3d: '#141c2c', semParede: true },
+  interno: { rotulo: 'Cômodo', cor3d: '#d9cdb9' },
+  circulacao: { rotulo: 'Circulação', cor3d: '#c7b9a2' },
+  sacada: { rotulo: 'Sacada', cor3d: '#a9bccb', externo: true },
+  indefinido: { rotulo: 'A confirmar', cor3d: '#bdb5a8', semParede: true },
 };
 
 export const TIPO_COMODO_PADRAO = 'interno';

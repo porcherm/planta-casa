@@ -95,7 +95,7 @@ export function iniciarModelo3D(store) {
 
   function destacarSelecionado() {
     if (!cena) return;
-    const destaque = new THREE.Color(lerVariavelCss('--accent', '#4f86ff'));
+    const destaque = new THREE.Color(lerVariavelCss('--accent', '#E4653C'));
     for (const piso of cena.pecas.pisos) {
       const selecionado = piso.userData.id === store.selecionadoId;
       piso.material.emissive.copy(selecionado ? destaque : new THREE.Color(0x000000));

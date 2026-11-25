@@ -1,46 +1,67 @@
 /* ==========================================================================
    Base — design tokens, reset e tipografia global
-   Tema: "prancheta noturna" (fundo escuro, linhas em azul)
+   Tema: "papel marfim" — regra 60/30/10
+     60% Marfim         #E1D7C8  fundo, superfícies, pisos
+     30% Azul petróleo  #1B4E77  texto, paredes, estados ativos, foco
+     10% Coral queimado #E4653C  ação principal, seleção, entrada
+   Contraste (WCAG): petróleo sobre marfim 5,7:1. O coral puro sobre marfim
+   fica em 2,2:1, por isso NUNCA é usado como texto: texto coral usa
+   --accent-ink (4,7:1) e o botão coral leva texto escuro (4,8:1).
    ========================================================================== */
 
 :root {
-  /* Superfícies */
-  --bg: #04060b;
-  --glow: #0b1a3a;
-  --surface: #0a1120;
-  --surface-2: #0f1b33;
-  --line: #1a2844;
-  --line-strong: #2b3f66;
+  /* Paleta da marca */
+  --marfim: #E1D7C8;
+  --petroleo: #1B4E77;
+  --coral: #E4653C;
 
-  /* Texto e destaque */
-  --fg: #e7edf8;
-  --muted: #8a99b8;
-  --accent: #4f86ff;
-  --accent-soft: rgba(79, 134, 255, .16);
+  /* Superfícies (60%) */
+  --bg: var(--marfim);
+  --glow: #ECE5D9;
+  --surface: #EBE4D8;
+  --surface-2: #F4EFE7;
+  --line: #CDBFAA;          /* divisórias decorativas */
+  --line-strong: #6F7E89;   /* bordas de controles: 3:1 sobre os cards */
+
+  /* Texto e estados ativos (30%) */
+  --fg: #0F2233;            /* tinta petróleo profundo */
+  --muted: #44566A;         /* 4,9:1 sobre o marfim */
+  --secondary: var(--petroleo);
+  --on-secondary: #F4EFE7;
+  --secondary-soft: rgba(27, 78, 119, .12);
+
+  /* Destaque (10%) */
+  --accent: var(--coral);   /* preenchimentos e traços */
+  --accent-ink: #9A3814;    /* coral escurecido para texto */
+  --on-accent: #0F2233;
+  --accent-soft: rgba(228, 101, 60, .16);
 
   /* Cômodos (por tipo de área) */
-  --room-interno: #0f1f3d;
-  --room-circulacao: #0a1528;
-  --room-sacada: #070d19;
-  --room-sel: #17336b;
+  --room-interno: #F7F3EC;
+  --room-circulacao: #E6DCCB;
+  --room-sacada: #DCE3E8;
+  --room-hover: #FBEDE5;
+  --room-sel: #F6D5C6;
 
   /* Elementos da planta */
-  --wall: #d6dff0;
-  --rail: #7f93bd;
-  --grid: #0b162c;
-  --grid-strong: #122243;
+  --wall: var(--petroleo);
+  --wall-3d: #F3EEE6;
+  --rail: #5F7F99;
+  --glass: #6FA3C9;
+  --grid: #DDD3C3;
+  --grid-strong: #CFC3B0;
 
-  /* Estados */
-  --ok: #43c59a;
-  --wait: #e2b553;
-  --danger: #ff7a7a;
+  /* Estados (escurecidos para passar 4,5:1 sobre o marfim) */
+  --ok: #1F6444;
+  --wait: #7A4E00;
+  --danger: #A61E14;
 
   /* Fontes */
   --f-display: "Syne", "Archivo", system-ui, sans-serif;
   --f-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html { background: var(--bg); }
@@ -63,7 +84,7 @@ button,
 textarea { font: inherit; color: inherit; }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--secondary); /* coral não chega a 3:1 no marfim */
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -77,6 +98,7 @@ h1 {
   letter-spacing: -.025em;
   text-wrap: balance;
   max-width: 16ch;
+  color: var(--secondary);
 }
 
 .eyebrow {
@@ -84,7 +106,7 @@ h1 {
   font-size: 11px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {

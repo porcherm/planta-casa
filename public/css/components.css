@@ -31,10 +31,10 @@
   cursor: pointer;
   transition: border-color .15s, background .15s;
 }
-.btn:hover { border-color: var(--accent); }
-.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-.btn.primary:hover { filter: brightness(1.1); }
+.btn:hover { border-color: var(--secondary); background: var(--secondary-soft); }
+.btn[aria-pressed="true"] { background: var(--secondary); border-color: var(--secondary); color: var(--on-secondary); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.06); background: var(--accent); border-color: var(--accent-ink); }
 .btn.sm { padding: 6px 11px; font-size: 12.5px; }
 .btn.ico { width: 32px; padding: 5px 0; font-size: 16px; line-height: 1; }
 
@@ -60,9 +60,8 @@
 }
 .seg button:hover { color: var(--fg); }
 .seg button[aria-pressed="true"] {
-  background: var(--surface-2);
-  color: var(--fg);
-  box-shadow: inset 0 0 0 1px var(--line-strong);
+  background: var(--secondary);
+  color: var(--on-secondary);
 }
 
 /* Grupo de controles e chips de camada */
@@ -86,7 +85,7 @@
   transition: background .15s, color .15s, border-color .15s;
 }
 .chip-t:hover { color: var(--fg); }
-.chip-t[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--fg); }
+.chip-t[aria-pressed="true"] { background: var(--secondary); border-color: var(--secondary); color: var(--on-secondary); }
 
 /* Legenda de cores */
 .legend {
@@ -108,7 +107,7 @@
 .sw.janela {
   background:
     linear-gradient(var(--wall), var(--wall)) top / 100% 2px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) center / 100% 2px no-repeat,
+    linear-gradient(var(--glass), var(--glass)) center / 100% 2px no-repeat,
     linear-gradient(var(--wall), var(--wall)) bottom / 100% 2px no-repeat;
   border: 0;
 }
@@ -119,7 +118,7 @@
 .ov-top { top: 12px; left: 12px; right: 12px; justify-content: space-between; align-items: flex-start; }
 .ov-bottom { left: 12px; right: 12px; bottom: 12px; }
 .tag {
-  background: rgba(4, 6, 11, .78);
+  background: rgba(244, 239, 231, .88);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 6px 10px;
@@ -169,8 +168,8 @@
   align-items: flex-start;
   font-size: 13px;
   color: var(--fg);
-  background: rgba(226, 181, 83, .08);
-  border: 1px solid rgba(226, 181, 83, .35);
+  background: rgba(122, 78, 0, .07);
+  border: 1px solid rgba(122, 78, 0, .35);
   border-radius: 10px;
   padding: 10px 12px;
 }
@@ -208,7 +207,8 @@ dl.medidas dd { margin: 0; font-family: var(--f-mono); font-size: 18px; font-var
 }
 .rooms li button:hover { background: var(--surface-2); }
 .rooms li button[aria-current="true"] { background: var(--accent-soft); }
-.rooms li button[aria-current="true"] .r-nome { color: var(--accent); }
+.rooms li button[aria-current="true"] { box-shadow: inset 3px 0 0 var(--accent); }
+.rooms li button[aria-current="true"] .r-nome { color: var(--accent-ink); }
 .r-nome { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 7px; }
 .r-area { font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
 .r-med { grid-column: 1 / -1; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }

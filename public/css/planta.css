@@ -35,7 +35,7 @@
 .room .piso.circulacao { fill: var(--room-circulacao); }
 .room .piso.sacada { fill: var(--room-sacada); }
 .room .piso.indefinido { fill: url(#hachura); }
-.room:hover .piso { fill: var(--surface-2); }
+.room:hover .piso { fill: var(--room-hover); }
 .room.is-sel .piso { fill: var(--room-sel); }
 .room .anel {
   fill: none;
@@ -60,11 +60,11 @@
 .porta-ent { stroke: var(--accent); stroke-width: 3; pointer-events: none; }
 .porta-batente { stroke: var(--accent); stroke-width: 4; pointer-events: none; }
 .piso-vao { fill: var(--room-circulacao); pointer-events: none; }
-.ent-txt { fill: var(--accent); font-family: var(--f-mono); font-size: 17px; letter-spacing: .12em; text-anchor: middle; pointer-events: none; }
+.ent-txt { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 17px; letter-spacing: .12em; text-anchor: middle; pointer-events: none; }
 
 /* Janelas */
 .jan-moldura { stroke: var(--wall); stroke-width: 2.5; pointer-events: none; }
-.jan-vidro { stroke: var(--accent); stroke-width: 3; pointer-events: none; }
+.jan-vidro { stroke: var(--glass); stroke-width: 3; pointer-events: none; }
 
 /* Rótulos dos cômodos */
 .lbl { pointer-events: none; text-anchor: middle; }
@@ -72,7 +72,7 @@
 .lbl-nome.sm { font-size: 19px; }
 .lbl-nome.ext { fill: var(--muted); font-weight: 600; }
 .lbl-med { fill: var(--muted); font-family: var(--f-mono); font-size: 18px; }
-.lbl-area { fill: var(--accent); font-family: var(--f-mono); font-size: 18px; }
+.lbl-area { fill: var(--secondary); font-family: var(--f-mono); font-size: 18px; }
 .lbl-q { fill: var(--wait); font-family: var(--f-display); font-weight: 700; font-size: 30px; }
 
 /* Cotas gerais */
@@ -81,13 +81,13 @@
 
 /* Medidas de cada parede do cômodo selecionado */
 .med-linha { stroke: var(--accent); stroke-width: 1.5; pointer-events: none; }
-.med-txt { fill: var(--accent); font-family: var(--f-mono); font-size: 15px; font-weight: 500; text-anchor: middle; pointer-events: none; }
+.med-txt { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 15px; font-weight: 500; text-anchor: middle; pointer-events: none; }
 .med-txt.ab { fill: var(--muted); }
 
 /* Régua */
 .regua-linha { stroke: var(--wait); stroke-width: 3; stroke-linecap: round; pointer-events: none; }
 .regua-pt { fill: var(--wait); pointer-events: none; }
-.regua-caixa { fill: var(--bg); stroke: var(--wait); stroke-width: 1.5; pointer-events: none; }
+.regua-caixa { fill: var(--surface-2); stroke: var(--wait); stroke-width: 1.5; pointer-events: none; }
 .regua-txt { fill: var(--wait); font-family: var(--f-mono); font-size: 18px; font-weight: 500; text-anchor: middle; pointer-events: none; }
 
 /* Modelo 3D */

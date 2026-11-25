@@ -40,7 +40,7 @@ export async function exportarPng(svg, viewBox, nomeArquivo) {
   canvas.width = largura;
   canvas.height = altura;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = lerVariavelCss('--bg', '#04060b');
+  ctx.fillStyle = lerVariavelCss('--bg', '#E1D7C8');
   ctx.fillRect(0, 0, largura, altura);
   ctx.drawImage(imagem, 0, 0, largura, altura);
 
