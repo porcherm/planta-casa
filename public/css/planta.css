@@ -68,12 +68,12 @@
 
 /* Rótulos dos cômodos */
 .lbl { pointer-events: none; text-anchor: middle; }
-.lbl-nome { fill: var(--fg); font-family: var(--f-display); font-weight: 700; font-size: 27px; }
+.lbl-nome { fill: var(--fg); font-family: var(--f-display); font-weight: 600; font-size: 27px; }
 .lbl-nome.sm { font-size: 19px; }
-.lbl-nome.ext { fill: var(--muted); font-weight: 600; }
+.lbl-nome.ext { fill: var(--muted); }
 .lbl-med { fill: var(--muted); font-family: var(--f-mono); font-size: 18px; }
 .lbl-area { fill: var(--secondary); font-family: var(--f-mono); font-size: 18px; }
-.lbl-q { fill: var(--wait); font-family: var(--f-display); font-weight: 700; font-size: 30px; }
+.lbl-q { fill: var(--wait); font-family: var(--f-display); font-weight: 600; font-size: 30px; }
 
 /* Cotas gerais */
 .cota { stroke: var(--muted); stroke-width: 1.5; }

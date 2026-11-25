@@ -2,113 +2,183 @@
    Base — design tokens, reset e tipografia global
    Tema: "papel marfim" — regra 60/30/10
      60% Marfim         #E1D7C8  fundo, superfícies, pisos
-     30% Azul petróleo  #1B4E77  texto, paredes, estados ativos, foco
+     30% Azul petróleo  #1B4E77  cabeçalho, texto, paredes, estados ativos, foco
      10% Coral queimado #E4653C  ação principal, seleção, entrada
-   Contraste (WCAG): petróleo sobre marfim 5,7:1. O coral puro sobre marfim
-   fica em 2,2:1, por isso NUNCA é usado como texto: texto coral usa
-   --accent-ink (4,7:1) e o botão coral leva texto escuro (4,8:1).
+   Contraste (WCAG 2.2 AA), calculado:
+     petróleo sobre marfim ............ 5,7:1
+     texto (#0F2233) sobre marfim ..... 13:1
+     muted (#44566A) sobre marfim ..... 4,9:1
+     coral puro sobre marfim .......... 2,2:1  → nunca usado como texto
+     --accent-ink (#9A3814) s/ marfim . 4,7:1  → coral para texto
+     texto escuro sobre coral ......... 4,8:1  → rótulo do botão principal
+     marfim claro sobre petróleo ...... 7,4:1  → cabeçalho e botões ativos
    ========================================================================== */
 
 :root {
-  /* Paleta da marca */
+  /* ---------- Paleta da marca ---------- */
   --marfim: #E1D7C8;
   --petroleo: #1B4E77;
   --coral: #E4653C;
 
-  /* Superfícies (60%) */
-  --bg: var(--marfim);
-  --glow: #ECE5D9;
-  --surface: #EBE4D8;
-  --surface-2: #F4EFE7;
-  --line: #CDBFAA;          /* divisórias decorativas */
-  --line-strong: #6F7E89;   /* bordas de controles: 3:1 sobre os cards */
+  /* ---------- Superfícies (60%) ---------- */
+  --bg: var(--marfim);          /* página */
+  --canvas: #ECE5D9;            /* fundo da planta e do 3D */
+  --surface: #F6F2EB;           /* cards (mais claros que a página = elevação) */
+  --surface-2: #FBF9F5;         /* botões e controles sobre os cards */
+  --surface-sunken: #E9E1D3;    /* trilhos, segmentados, faixas */
+  --field: #FFFDF9;             /* campos de formulário */
+  --line: #D8CDBD;              /* divisórias decorativas */
+  --line-strong: #6F7E89;       /* bordas de controles: ≥ 3:1 */
 
-  /* Texto e estados ativos (30%) */
-  --fg: #0F2233;            /* tinta petróleo profundo */
-  --muted: #44566A;         /* 4,9:1 sobre o marfim */
+  /* ---------- Texto e estados ativos (30%) ---------- */
+  --fg: #0F2233;
+  --muted: #44566A;
   --secondary: var(--petroleo);
-  --on-secondary: #F4EFE7;
-  --secondary-soft: rgba(27, 78, 119, .12);
+  --secondary-hover: #24618F;
+  --on-secondary: #F6F2EB;
+  --secondary-soft: rgba(27, 78, 119, .08);
+  --secondary-soft-2: rgba(27, 78, 119, .16);
 
-  /* Destaque (10%) */
-  --accent: var(--coral);   /* preenchimentos e traços */
-  --accent-ink: #9A3814;    /* coral escurecido para texto */
+  /* ---------- Destaque (10%) ---------- */
+  --accent: var(--coral);
+  --accent-ink: #9A3814;
   --on-accent: #0F2233;
-  --accent-soft: rgba(228, 101, 60, .16);
+  --accent-soft: rgba(228, 101, 60, .14);
 
-  /* Cômodos (por tipo de área) */
-  --room-interno: #F7F3EC;
-  --room-circulacao: #E6DCCB;
-  --room-sacada: #DCE3E8;
-  --room-hover: #FBEDE5;
-  --room-sel: #F6D5C6;
+  /* ---------- Cômodos ---------- */
+  --room-interno: #FBF8F3;
+  --room-circulacao: #E4D9C7;
+  --room-sacada: #D9E2E9;
+  --room-hover: #FCEEE6;
+  --room-sel: #F8D9CB;
 
-  /* Elementos da planta */
+  /* ---------- Elementos da planta ---------- */
   --wall: var(--petroleo);
   --wall-3d: #F3EEE6;
   --rail: #5F7F99;
   --glass: #6FA3C9;
-  --grid: #DDD3C3;
-  --grid-strong: #CFC3B0;
+  --grid: #E2D9CB;
+  --grid-strong: #D3C7B4;
 
-  /* Estados (escurecidos para passar 4,5:1 sobre o marfim) */
+  /* ---------- Estados ---------- */
   --ok: #1F6444;
   --wait: #7A4E00;
   --danger: #A61E14;
+  --danger-soft: rgba(166, 30, 20, .07);
+  --wait-soft: rgba(122, 78, 0, .07);
 
-  /* Fontes */
-  --f-display: "Syne", "Archivo", system-ui, sans-serif;
+  /* ---------- Tipografia ----------
+     Escala 1.2 a partir de 16px: 12 (micro) · 14 (apoio) · 16 · 20 · 24 · 28 */
+  --f-display: "Fraunces", Georgia, "Times New Roman", serif;
   --f-body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --t-micro: .75rem;
+  --t-sm: .875rem;
+  --t-base: 1rem;
+  --t-md: 1.25rem;
+  --t-lg: 1.5rem;
+  --t-xl: 1.75rem;
+
+  /* ---------- Espaçamento (grade de 4 px) ---------- */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  /* ---------- Raios (interno = externo − recuo) ---------- */
+  --r-xl: 20px;   /* janela de diálogo */
+  --r-lg: 16px;   /* cards e palco */
+  --r-md: 12px;   /* segmentado, avisos */
+  --r-sm: 8px;    /* botões, campos, itens dentro do segmentado (12 − 4) */
+  --r-xs: 6px;
+
+  /* ---------- Elevação (luz vinda de cima) ---------- */
+  --shadow-1: 0 1px 2px rgba(15, 34, 51, .06), 0 1px 1px rgba(15, 34, 51, .04);
+  --shadow-2: 0 4px 12px rgba(15, 34, 51, .08), 0 1px 3px rgba(15, 34, 51, .06);
+  --shadow-3: 0 24px 48px rgba(15, 34, 51, .18), 0 4px 12px rgba(15, 34, 51, .08);
+
+  /* ---------- Controles ---------- */
+  --control-h: 40px;
+  --ease: cubic-bezier(.2, .7, .3, 1);
 
   color-scheme: light;
 }
 
-html { background: var(--bg); }
+/* Toque: alvos de 44 px */
+@media (pointer: coarse) {
+  :root { --control-h: 44px; }
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { background: var(--bg); -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: radial-gradient(1100px 480px at 78% -8%, var(--glow) 0%, transparent 62%), var(--bg);
+  background: var(--bg);
   color: var(--fg);
   font-family: var(--f-body);
-  font-size: 15px;
-  line-height: 1.55;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 0 48px;
+  font-size: var(--t-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 [hidden] { display: none !important; }
 
 button,
+input,
+select,
 textarea { font: inherit; color: inherit; }
 
 :focus-visible {
   outline: 2px solid var(--secondary); /* coral não chega a 3:1 no marfim */
   outline-offset: 2px;
-  border-radius: 6px;
 }
+
+/* Pular direto para a planta (aparece só com o teclado) */
+.skip {
+  position: absolute;
+  left: var(--s4);
+  top: -100px;
+  z-index: 10;
+  padding: var(--s2) var(--s4);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-2);
+}
+.skip:focus { top: var(--s3); }
 
 h1 {
   margin: 0;
   font-family: var(--f-display);
-  font-weight: 800;
-  font-size: clamp(30px, 5.4vw, 56px);
-  line-height: 1.02;
-  letter-spacing: -.025em;
-  text-wrap: balance;
-  max-width: 16ch;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, var(--t-xl));
+  line-height: 1.1;
+  letter-spacing: -.01em;
   color: var(--secondary);
+  text-wrap: balance;
 }
 
+/* Rótulo curto acima de títulos */
 .eyebrow {
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: .12em;
+  font-size: var(--t-micro);
+  font-weight: 500;
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--accent-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  *,
+  *::before,
+  *::after { transition: none !important; animation: none !important; }
 }

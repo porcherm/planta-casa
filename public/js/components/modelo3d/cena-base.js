@@ -16,7 +16,7 @@ export function criarCenaBase(host) {
   renderer.outputEncoding = THREE.sRGBEncoding;
   host.appendChild(renderer.domElement);
 
-  const fundo = new THREE.Color(lerVariavelCss('--bg', '#E1D7C8'));
+  const fundo = new THREE.Color(lerVariavelCss('--canvas', '#ECE5D9'));
   const scene = new THREE.Scene();
   scene.background = fundo;
   scene.fog = new THREE.Fog(fundo, 24, 52);

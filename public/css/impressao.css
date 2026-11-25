@@ -4,21 +4,24 @@
 
 /* Janela de opções */
 .dialogo {
-  width: min(440px, calc(100vw - 32px));
+  width: min(480px, calc(100vw - 32px));
   box-sizing: border-box;
   background: var(--surface);
   color: var(--fg);
-  border: 1px solid var(--line-strong);
-  border-radius: 16px;
-  padding: 20px;
+  border: 0;
+  border-radius: var(--r-xl);
+  padding: var(--s5);
+  box-shadow: var(--shadow-3);
 }
 .dialogo::backdrop { background: rgba(15, 34, 51, .45); backdrop-filter: blur(2px); }
-.dialogo h2 { margin: 0 0 14px; font-family: var(--f-display); font-weight: 700; font-size: 20px; }
-.dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dialogo h2 { margin: 0 0 var(--s5); font-family: var(--f-display); font-weight: 600; font-size: var(--t-lg); line-height: 1.15; color: var(--secondary); }
+.dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s3); }
 .dialogo-campos .ed-campo:first-child { grid-column: 1 / -1; }
-.dialogo-resumo { margin: 14px 0 0; font-family: var(--f-mono); font-size: 13px; color: var(--ok); }
+.dialogo-resumo { margin: var(--s4) 0 0; font-family: var(--f-mono); font-size: var(--t-sm); color: var(--ok); }
 .dialogo-resumo.erro { color: var(--danger); }
-.dialogo-nota { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
+.dialogo-nota { margin: var(--s3) 0 0; font-size: var(--t-sm); color: var(--muted); }
+/* Ação principal à direita, como de costume (a ordem no HTML já segue isso) */
+.dialogo .ed-acoes { justify-content: flex-end; margin-top: var(--s5); }
 
 /* A folha só existe na impressão */
 #impressao { display: none; }
