@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Corte — vista em corte da casa (aba "Corte")
+   Convenção de desenho técnico: o que a linha corta vai cheio (petróleo),
+   degraus em petróleo médio, terra com hachura, níveis em linha fina.
+   ========================================================================== */
+
+#corte-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.corte-cheio { fill: var(--wall); }
+.corte-degrau { fill: var(--rail); stroke: var(--canvas); stroke-width: 1; }
+.corte-guarda { fill: var(--rail); }
+.corte-vidro { stroke: var(--glass); stroke-width: 5; }
+.corte-telhado { stroke: var(--rail); stroke-width: 12; stroke-linecap: round; }
+.corte-oitao { stroke: var(--wall); stroke-width: 12; }
+.corte-terra { fill: url(#corte-hachura); }
+.corte-hach { stroke: var(--line-strong); stroke-width: 1.5; opacity: .55; }
+.corte-terreno { fill: none; stroke: var(--fg); stroke-width: 3; }
+.corte-nivel { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 6 8; opacity: .7; }
+.corte-marca { fill: var(--accent-ink); }
+.corte-nivel-txt { font-family: var(--f-mono); font-size: 16px; fill: var(--accent-ink); }
+.corte-cota { stroke: var(--muted); stroke-width: 1.5; }
+.corte-cota-txt { font-family: var(--f-mono); font-size: 15px; fill: var(--muted); text-anchor: middle; }
+.corte-rotulo { font-family: var(--f-body); font-size: 18px; font-weight: 600; fill: var(--fg); text-anchor: middle; }
+.corte-titulo { font-family: var(--f-display); font-size: 26px; font-weight: 600; fill: var(--secondary); }
+
+/* Mapa do canto: onde passa a linha do corte */
+.corte-mapa {
+  position: absolute;
+  top: var(--s3);
+  right: var(--s3);
+  width: 170px;
+  height: 140px;
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-2), 0 0 0 1px var(--line);
+  background: var(--surface);
+  cursor: crosshair;
+  touch-action: none;
+}
+.mapa-fundo { fill: var(--surface); }
+.mapa-comodo { fill: none; stroke: var(--line-strong); stroke-width: 4; opacity: .5; }
+.mapa-comodo.base { fill: var(--room-circulacao); opacity: .8; }
+.mapa-linha { stroke: var(--accent); stroke-width: 12; stroke-dasharray: 40 16; }
+.mapa-letra { font-family: var(--f-mono); font-size: 60px; font-weight: 500; fill: var(--accent-ink); text-anchor: middle; }
+
+.corte-posicao input[type="range"] { width: min(240px, 40vw); accent-color: var(--secondary); }
+.corte-posicao output { font-family: var(--f-mono); font-size: var(--t-sm); color: var(--muted); min-width: 9ch; }
+
+@media (max-width: 600px) {
+  .corte-mapa { width: 120px; height: 100px; }
+}

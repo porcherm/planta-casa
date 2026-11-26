@@ -145,6 +145,17 @@
 .ed-status.ok { color: var(--ok); }
 .ed-status.erro { color: var(--danger); }
 
+/* Seção "Este andar" dentro das configurações */
+.ed-secao {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+
 /* Aviso de rascunho salvo */
 .ed-rascunho {
   padding: var(--s3);
@@ -154,3 +165,16 @@
   font-size: var(--t-sm);
 }
 .ed-rascunho .ed-acoes { margin-top: var(--s3); }
+
+/* Fora do painel (acima da área de trabalho): texto e botões na mesma linha quando cabe */
+.container > .ed-rascunho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3) var(--s4);
+  margin-bottom: var(--s4);
+  padding: var(--s3) var(--s4);
+  font-size: var(--t-base);
+}
+.container > .ed-rascunho .ed-acoes { margin-top: 0; }

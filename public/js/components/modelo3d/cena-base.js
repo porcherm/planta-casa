@@ -34,7 +34,7 @@ export function criarCenaBase(host) {
   const grupo = new THREE.Group();
   scene.add(grupo);
 
-  return { renderer, scene, grupo };
+  return { renderer, scene, grupo, grade };
 }
 
 /** Remove e libera da memória tudo o que está dentro do grupo. */

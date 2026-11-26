@@ -20,7 +20,8 @@
 #planta.sem-nomes .cam-nomes,
 #planta.sem-cotas .cam-cotas,
 #planta.sem-portas .cam-portas,
-#planta.sem-grade .cam-grade { display: none; }
+#planta.sem-grade .cam-grade,
+#planta.sem-fantasma .cam-fantasma { display: none; }
 
 /* Grade de fundo */
 .g-fina { stroke: var(--grid); stroke-width: 1; fill: none; }
@@ -51,6 +52,35 @@
 /* Paredes e guarda-corpos */
 .parede { fill: none; stroke: var(--wall); stroke-width: 12; stroke-linecap: square; pointer-events: none; }
 .guarda { fill: none; stroke: var(--rail); stroke-width: 3; stroke-dasharray: 10 5; pointer-events: none; }
+/* Escadas: degraus em traço fino, seta do caminho em coral escuro (texto ≥ 4,5:1) */
+.escada-area { fill: var(--room-circulacao); stroke: var(--wall); stroke-width: 2; }
+.escada.desce .escada-area { fill: var(--surface-sunken); }
+.degrau { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.degrau.oculto { stroke-dasharray: 6 5; opacity: .55; }
+.escada-poste { fill: var(--muted); }
+.escada-corte { stroke: var(--fg); stroke-width: 3; }
+.escada-linha { fill: none; stroke: var(--accent-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.escada-seta,
+.escada-inicio { fill: var(--accent-ink); }
+.escada-txt { font-family: var(--f-mono); font-size: 15px; font-weight: 500; letter-spacing: .08em; fill: var(--accent-ink); text-anchor: middle; }
+.escada-guarda { stroke: var(--rail); stroke-width: 4; stroke-dasharray: 10 5; }
+.escada:focus { outline: none; }
+.escada:focus-visible .escada-area { stroke: var(--secondary); stroke-width: 5; }
+.escada.is-sel .escada-area { fill: var(--room-sel); stroke: var(--accent); stroke-width: 5; }
+
+/* Vazios (pé-direito duplo): fundo do canvas, "X" fino e guarda-corpo tracejado */
+.vazio-area { fill: var(--canvas); stroke: none; }
+.vazio-x { stroke: var(--line-strong); stroke-width: 1.5; }
+.vazio-guarda { stroke: var(--rail); stroke-width: 4; stroke-dasharray: 10 5; }
+.vazio-etiqueta { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
+.vazio-txt { font-family: var(--f-mono); font-size: 14px; font-weight: 500; letter-spacing: .1em; fill: var(--muted); text-anchor: middle; }
+.vazio-projecao polygon { fill: none; stroke: var(--muted); stroke-width: 2; stroke-dasharray: 3 7; pointer-events: none; }
+.vazio-proj-txt { font-family: var(--f-mono); font-size: 13px; fill: var(--muted); text-anchor: middle; pointer-events: none; }
+.vazio:focus { outline: none; }
+.vazio.is-sel .vazio-area { fill: var(--room-sel); stroke: var(--accent); stroke-width: 5; }
+
+/* Paredes do andar de baixo, para alinhar: finas, tracejadas e discretas */
+.fantasma { fill: none; stroke: var(--glass); stroke-width: 4; stroke-dasharray: 16 10; stroke-linecap: butt; opacity: .9; pointer-events: none; }
 
 /* Portas */
 .porta-linha { stroke: var(--muted); stroke-width: 2; pointer-events: none; }

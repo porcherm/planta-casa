@@ -7,6 +7,8 @@
 #passeio-host canvas:active { cursor: grabbing; }
 
 .passeio-base { justify-content: space-between; align-items: flex-end; }
+.passeio-acoes { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2); }
+.passeio-andar { display: flex; gap: var(--s2); flex-wrap: wrap; }
 
 /* Setas na tela (úteis no celular, onde não há teclado) */
 .passeio-setas {

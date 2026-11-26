@@ -162,6 +162,46 @@
   .chip-t { min-height: 44px; }
 }
 
+/* ---------- Seletor de andar ----------
+   Diferente das abas de propósito: botões com contorno, de baixo para cima,
+   e o andar visível marcado com um traço coral embaixo (não só pela cor). */
+.andares { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.andares-lista { display: flex; gap: var(--s1); flex-wrap: wrap; }
+.andar-btn {
+  position: relative;
+  min-height: calc(var(--control-h) - 8px);
+  padding: 0 var(--s3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .15s var(--ease), color .15s var(--ease), background-color .15s var(--ease);
+}
+.andar-btn:hover { color: var(--fg); border-color: var(--secondary); }
+.andar-btn[aria-pressed="true"] {
+  color: var(--secondary);
+  border-color: var(--secondary);
+  background: var(--secondary-soft);
+}
+.andar-btn[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  left: var(--s3);
+  right: var(--s3);
+  bottom: 3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.andar-btn small { font-family: var(--f-mono); font-weight: 400; font-size: var(--t-micro); margin-left: 6px; color: var(--muted); }
+@media (pointer: coarse) {
+  .andar-btn { min-height: 44px; }
+}
+
 /* ---------- Legenda de cores ---------- */
 .legend {
   display: flex;
@@ -326,6 +366,22 @@ dl.medidas dd {
   transition: background-color .15s var(--ease), box-shadow .15s var(--ease);
 }
 .rooms li button:hover { background: var(--secondary-soft); }
+/* Título de cada andar na lista (casas com mais de um andar) */
+.rooms li.r-andar {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin: var(--s3) var(--s2) var(--s1);
+  padding-bottom: var(--s1);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+.rooms li.r-andar:first-child { margin-top: 0; }
 .rooms li button[aria-current="true"] {
   background: var(--accent-soft);
   box-shadow: inset 3px 0 0 var(--accent);

@@ -1,0 +1,125 @@
+/* ==========================================================================
+   Planta por fotos (IA): janela de envio, progresso e resultado.
+   Usa a base de .dialogo (impressao.css) e os campos do editor (.ed-campo).
+   ========================================================================== */
+
+.dialogo-ia {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+.dialogo-ia .ia-intro { margin-top: calc(-1 * var(--s3)); margin-bottom: var(--s4); }
+.dialogo-ia .ed-campo { margin-top: var(--s4); }
+.dialogo-ia .eyebrow { display: block; margin-top: var(--s4); }
+
+/* ---------- Área de soltar fotos ---------- */
+.ia-soltar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  padding: var(--s5) var(--s4);
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--field);
+  color: var(--secondary);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s var(--ease), background-color .15s var(--ease);
+}
+.ia-soltar[hidden] { display: none; }
+.ia-soltar:hover,
+.ia-soltar.arrastando { border-color: var(--secondary); background: var(--secondary-soft); }
+.ia-soltar:focus-within { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(27, 78, 119, .3); }
+.ia-soltar b { font-weight: 600; color: var(--fg); }
+.ia-soltar small { font-size: var(--t-sm); color: var(--muted); }
+/* Fica acessível pelo teclado, mas invisível: o rótulo inteiro é o alvo do clique */
+.ia-soltar input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* ---------- Miniaturas ---------- */
+.ia-miniaturas {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--s2);
+  margin: var(--s3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ia-miniaturas:empty { display: none; }
+.ia-miniaturas li { position: relative; aspect-ratio: 1; }
+.ia-miniaturas img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.ia-remover {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 34, 51, .75);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ia-remover:hover { background: var(--danger); }
+.ia-contador { margin: var(--s2) 0 0; font-size: var(--t-sm); color: var(--muted); }
+
+/* ---------- Campos ---------- */
+.dialogo-ia textarea {
+  width: 100%;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--field);
+  color: var(--fg);
+  font: inherit;
+  resize: vertical;
+}
+.dialogo-ia textarea:hover { border-color: var(--secondary); }
+.dialogo-ia textarea:focus-visible { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(27, 78, 119, .3); }
+.ia-chave { margin-top: var(--s2); }
+.ia-chave .ed-check { margin-top: var(--s2); }
+.ia-chave a { color: var(--secondary); font-weight: 500; }
+
+/* ---------- Progresso ---------- */
+.ia-progresso { display: flex; flex-direction: column; align-items: center; text-align: center; padding-block: var(--s5) 0; }
+.ia-progresso #ia-fase { margin: var(--s4) 0 0; font-weight: 500; }
+.ia-progresso .ed-acoes { justify-content: center; }
+#ia-tempo { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.ia-girando {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--secondary-soft-2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: ia-girar 1s linear infinite;
+}
+@keyframes ia-girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .ia-girando { animation-duration: 3s; }
+}
+
+/* ---------- Resultado ---------- */
+.ia-pronto { margin: 0; font-family: var(--f-display); font-size: var(--t-md); font-weight: 600; color: var(--accent-ink); }
+.ia-observacoes { margin: var(--s2) 0 0; font-size: var(--t-sm); white-space: pre-line; }
+.ia-avisos {
+  margin-top: var(--s4);
+  padding: var(--s3);
+  border-radius: var(--r-md);
+  background: var(--wait-soft);
+  box-shadow: inset 3px 0 0 var(--wait);
+}
+.ia-avisos .eyebrow { margin-top: 0; color: var(--wait); }
+.ia-avisos ul { margin: var(--s2) 0 0; padding-left: var(--s4); font-size: var(--t-sm); }
+
+@media (max-width: 480px) {
+  .ia-miniaturas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dialogo-ia .ed-acoes .btn { flex: 1 1 auto; }
+}

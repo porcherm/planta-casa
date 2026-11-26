@@ -30,6 +30,7 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
 - [O que dá pra fazer](#-o-que-dá-pra-fazer)
 - [Feito com IA](#-feito-com-ia)
 - [Faça a planta da sua casa](#-faça-a-planta-da-sua-casa)
+  - [Planta por fotos (com IA)](#planta-por-fotos-com-ia)
   - [1. Baixe e rode o projeto](#1-baixe-e-rode-o-projeto)
   - [2. Meça a casa](#2-meça-a-casa)
   - [3. Entenda as coordenadas](#3-entenda-as-coordenadas)
@@ -38,7 +39,8 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
   - [6. Portas](#6-portas)
   - [7. Janelas](#7-janelas)
   - [8. Sacadas e formas livres](#8-sacadas-e-formas-livres)
-  - [9. Publique](#9-publique)
+  - [9. Casas com mais de um andar](#9-casas-com-mais-de-um-andar)
+  - [10. Publique](#10-publique)
   - [Dicas e erros comuns](#dicas-e-erros-comuns)
   - [Referência de campos](#referência-de-campos)
 - [Tecnologias e arquitetura](#-tecnologias-e-arquitetura)
@@ -57,6 +59,7 @@ Comecei com o meu apartamento e deixei tudo pronto para **qualquer pessoa desenh
 - **Modelo 3D** gerado dos mesmos dados: paredes, portas abertas, janelas com vidro, sacadas com guarda-corpo, vista de cima e os modos "paredes baixas" e "ocultar portas". O three.js só é baixado quando uma aba 3D é aberta, então a página abre mais rápido.
 - **Caminhar**: passeio em primeira pessoa pela casa (WASD/setas, arrastar para olhar, botões na tela no celular), com colisão nas paredes e o cômodo atual destacado no painel.
 - **Editor visual**: monte a planta arrastando cômodos (as bordas grudam na distância certa da parede), redimensione pelas alças, clique numa parede para pôr portas e janelas, desfaça/refaça e baixe o `apartamento.js` pronto. O editor avisa (e marca em vermelho) cômodos que se sobrepõem ou ficaram sem espaço para a parede entre eles.
+- **Planta por fotos (IA)**: envie de 1 a 5 fotos (dos cômodos, de uma planta impressa ou de um croqui) e o Claude monta a planta 2D e o 3D com as medidas estimadas. A planta gerada cai no Editor para você conferir e ajustar. Veja [como usar](#planta-por-fotos-com-ia).
 - **Mensagens de erro claras** quando algum dado está errado, inclusive uma vírgula faltando.
 - Funciona no **celular** e é acessível pelo **teclado**.
 
@@ -77,6 +80,23 @@ A ideia é mostrar o potencial da IA como parceira de desenvolvimento: dá pra s
 Você só vai editar **um arquivo**: [`public/js/constants/apartamento.js`](public/js/constants/apartamento.js). A planta 2D, o modelo 3D, as áreas e a lista de cômodos são gerados automaticamente a partir dele.
 
 > ✨ **Atalho: use o Editor.** Na aba **Editor** do site dá para montar a planta com o mouse, sem fazer as contas de coordenadas à mão. Quando terminar, clique em **Baixar apartamento.js** e substitua o arquivo em `public/js/constants/`. O guia abaixo continua útil para entender o formato e fazer ajustes finos.
+
+### Planta por fotos (com IA)
+
+O jeito mais rápido de começar: clique em **Planta por fotos (IA)**, no topo da página.
+
+1. Escolha de **1 a 5 fotos**. O melhor resultado vem de uma foto da planta do imóvel (do contrato, do folheto da construtora) ou de um croqui à mão **com as medidas escritas**. Com fotos dos cômodos, a IA estima as medidas pelas referências (portas, pisos, camas, bancadas).
+2. Se quiser, escreva **dicas**, como "a sala tem 4 m de largura" ou "o banheiro fica entre os quartos". Elas valem mais que as estimativas.
+3. Cole a sua **chave da API da Anthropic** ([crie uma aqui](https://console.anthropic.com/settings/keys)) e clique em **Gerar planta**. Leva de 1 a 3 minutos.
+4. A planta aparece nas abas 2D, 3D e Caminhar e entra no **Editor** como uma alteração comum: dá para ajustar, desfazer e **baixar o `apartamento.js`**.
+
+Bom saber:
+
+- **As medidas são estimativas.** Cada cômodo ganha uma nota com a confiança da IA (alta, média ou baixa) e de onde a medida saiu. Confira com uma trena e marque `medido: true` depois.
+- **Casas com mais de um andar:** mande as plantas de cada pavimento e a IA monta os andares alinhados. A escada vem marcada como um cômodo de circulação; desenhe-a depois com **+ Escada**, no Editor. Também dá para gerar um andar de cada vez: escolha em "Onde colocar a planta gerada" entre substituir o andar visível ou criar um andar novo acima ou abaixo.
+- **A chave é sua e fica no seu navegador.** O site é estático (não tem servidor), então o pedido vai direto do navegador para a API da Anthropic. Ela só é guardada se você marcar "Lembrar neste navegador" (em `localStorage`); não marque em computador compartilhado.
+- **Custo:** cada geração é cobrada na sua conta da API, conforme o tamanho das fotos e a quantidade de raciocínio. Costuma ser bem menos de US$ 1.
+- Por dentro: modelo `claude-opus-5-5`, resposta em JSON garantida por esquema ([`domain/planta-ia.js`](public/js/domain/planta-ia.js)), fotos reduzidas para 2000 px no navegador antes do envio. Os ajustes ficam em [`constants/ia.js`](public/js/constants/ia.js).
 
 ### 1. Baixe e rode o projeto
 
@@ -219,7 +239,83 @@ Para formatos que não são retângulos, use `pontos`: a lista dos cantos em ord
 - Para encostar a sacada na casa, use a **face de fora da parede**: borda do cômodo + `parede` inteira. No exemplo, a parede de cima da sala fica em `y = -6` (eixo) e a face de fora em `y = -12`.
 - Se o nome ficar em lugar ruim, ajuste a posição com `rotulo: [x, y]`.
 
-### 9. Publique
+### 9. Casas com mais de um andar
+
+Sobrado, casa com subsolo ou com mais pavimentos: troque `comodos`, `portas` e `janelas` por uma lista de `andares`, **de baixo para cima**. Cada andar segue exatamente as mesmas regras de uma planta de um andar só. O exemplo completo está em [`exemplos/sobrado.js`](public/js/constants/exemplos/sobrado.js).
+
+```js
+export const APARTAMENTO = {
+  nome: 'Meu sobrado',
+  peDireito: 270,
+  parede: 15,
+  andares: [
+    { id: 'subsolo', nome: 'Subsolo', peDireito: 250, comodos: [ /* ... */ ], portas: [ /* ... */ ] },
+    { id: 'terreo', nome: 'Térreo', referencia: true, comodos: [ /* ... */ ], portas: [ /* ... */ ], janelas: [ /* ... */ ] },
+    { id: 'superior', nome: 'Superior', comodos: [ /* ... */ ] },
+  ],
+};
+```
+
+- **Mesmas coordenadas em todos os andares**: o ponto (0, 0) do térreo fica exatamente embaixo do (0, 0) do superior. Assim as paredes de um andar caem em cima das do outro. Na planta 2D, ligue **Mostrar → Andar de baixo** para ver as paredes do andar de baixo tracejadas e alinhar.
+- **`referencia: true`** marca o andar que fica no nível da rua (cota 0). Sem ele, vale o andar com `id: 'terreo'` (ou o primeiro).
+- **A altura de cada andar é calculada**: acima da referência, soma o pé-direito do andar de baixo e a laje; abaixo, desconta. No exemplo, o superior fica a +2,85 m (270 + 15) e o subsolo a −2,65 m (15 + 250). Para casas com meio-nível, informe a altura do piso em `cota` (cm).
+- **`peDireito` e `laje`** (espessura da laje embaixo do andar) são opcionais em cada andar.
+- Os `id` dos cômodos precisam ser diferentes em toda a casa, não só no andar.
+
+No site:
+- O seletor **Andar** aparece acima da planta em todas as abas; **Page Up** e **Page Down** sobem e descem.
+- No **Editor**, os botões **+ Acima** e **+ Abaixo** criam um andar já com o contorno do andar de onde você partiu, e **Ajustes** muda nome, pé-direito, laje e altura do andar.
+- No **Modelo 3D**, **Só até este andar** corta a casa para ver o andar por dentro, e **Ocultar terreno** mostra o subsolo.
+- Ao **imprimir**, escolha "Todos os andares": sai uma folha por andar, todas na mesma escala e na mesma posição, para dar para sobrepor.
+
+#### Escadas
+
+Cada escada liga um andar ao andar logo acima e fica na lista `escadas` da casa:
+
+```js
+escadas: [
+  { id: 'escada-hall', nome: 'Escada do hall', tipo: 'U', de: 'terreo', para: 'superior',
+    x: 665, y: 225, largura: 200, comprimento: 286, sobe: 'norte', giro: 'direita', lance: 90 },
+],
+```
+
+- `x`, `y`, `largura` e `comprimento` são o retângulo que a escada ocupa na planta, nas mesmas coordenadas dos cômodos. Ela precisa ficar dentro de um cômodo nos dois andares.
+- `sobe` diz para que lado se sobe: `'norte'` (para cima da planta), `'sul'`, `'leste'` ou `'oeste'`.
+- `tipo`: `'reta'`, `'L'` (dois lances com patamar no canto), `'U'` (dois lances lado a lado, com patamar no fundo) ou `'caracol'`. Em L, U e caracol, `giro` diz para que lado ela vira; em L e U, `lance` é a largura de cada lance; na caracol, `volta` é quanto ela gira (padrão 360°).
+- **Os degraus são calculados sozinhos** pela altura entre os andares (~17,5 cm cada). O editor mostra quantos degraus ficaram, a altura de cada um, o piso e a fórmula de Blondel (2 × espelho + piso), e avisa se a escada ficou desconfortável, estreita ou fora dos cômodos.
+- Na planta, o andar de baixo mostra **SOBE**, com os degraus acima do plano de corte tracejados; o de cima mostra **DESCE**, o buraco na laje e o guarda-corpo.
+- No **Editor**, **+ Escada** cria uma escada do andar visível para o de cima. Arraste para posicionar, escolha o tipo e o sentido no painel e use **Girar 90°**.
+- No **Caminhar**, é só andar até a escada e subir: a altura acompanha os degraus. Os botões **Subir/Descer andar** continuam lá como atalho.
+
+#### Pé-direito duplo e mezanino (vazios)
+
+Um **vazio** é um recorte no piso de um andar: ali não há laje, e o cômodo de baixo fica com pé-direito duplo. Ele fica na lista `vazios` do andar onde está o recorte (o de cima), como um retângulo ou com `pontos`:
+
+```js
+{ id: 'mezanino', nome: 'Mezanino', peDireito: 240, comodos: [ /* ... */ ],
+  vazios: [{ id: 'vazio-sala', nome: 'Vazio da sala', x: 0, y: 320, largura: 600, comprimento: 300 }] },
+```
+
+O vazio precisa ficar dentro de um cômodo desse andar (num mezanino, o próprio mezanino). Em volta dele entra um guarda-corpo, na planta e no 3D; o painel mostra o pé-direito duplo do cômodo de baixo. No **Editor**, use **+ Vazio**. Exemplo completo: [`exemplos/casa-mezanino.js`](public/js/constants/exemplos/casa-mezanino.js).
+
+#### Terreno em desnível e telhado
+
+Os dois ficam no nível da casa e aparecem no **Modelo 3D** e no **Corte**:
+
+```js
+terreno: { desce: 'sul', desnivel: 265 },                        // na frente, nível da rua; nos fundos, 2,65 m abaixo
+telhado: { tipo: 'quatro-aguas', inclinacao: 30, beiral: 50 },  // 'laje', 'duas-aguas' ou 'quatro-aguas'
+```
+
+- O terreno cai em linha reta de um lado da casa ao outro (`desce`: `'norte'`, `'sul'`, `'leste'` ou `'oeste'`). É o caso clássico de garagem no subsolo abrindo para os fundos.
+- O telhado cobre o retângulo do último andar. Laje vem com platibanda; duas e quatro águas usam a `inclinacao` (em %) e o `beiral` (em cm). No 3D ele começa escondido, para dar para ver por dentro: use **Mostrar telhado**.
+- No **Editor**, os dois ficam em **Ajustes** (com nada selecionado), em "Terreno e telhado".
+
+#### Corte
+
+A aba **Corte** desenha a casa cortada por uma linha, como no desenho técnico: lajes e paredes cortadas em petróleo, portas e janelas (com verga, peitoril e vidro), degraus, guarda-corpos, o terreno com hachura, o telhado e o nível de cada andar com o pé-direito. Escolha **AA** (linha horizontal) ou **BB** (vertical), mova a linha com **Posição** ou clicando no mapa do canto, e baixe como PNG.
+
+### 10. Publique
 
 O projeto já vem configurado para o **Firebase Hosting** (gratuito):
 
@@ -256,9 +352,56 @@ No fim, o terminal mostra o link do seu site (algo como `https://seu-projeto.web
 | `peDireito` | não | `260` | Altura do teto, em cm |
 | `parede` | não | `0` | Espessura das paredes internas, em cm |
 | `alturaPorta` | não | `210` | Altura das portas, em cm |
-| `comodos` | **sim** | | Lista de cômodos (pelo menos um) |
+| `comodos` | **sim**, se não usar `andares` | | Lista de cômodos (pelo menos um) |
 | `portas` | não | `[]` | Lista de portas |
 | `janelas` | não | `[]` | Lista de janelas |
+| `andares` | não | | Casa com mais de um andar: lista de andares, de baixo para cima (no lugar de `comodos`, `portas` e `janelas`) |
+
+</details>
+
+<details>
+<summary><b>Andar</b> (dentro de <code>andares</code>)</summary>
+
+| Campo | Obrigatório | Padrão | Descrição |
+|---|---|---|---|
+| `comodos` | **sim** | | Cômodos do andar (pelo menos um) |
+| `portas`, `janelas` | não | `[]` | Portas e janelas do andar |
+| `id` | não | gerado | Identificador sem espaços |
+| `nome` | não | `'Andar N'` | Nome exibido no seletor, no painel e na impressão |
+| `referencia` | não | | `true` no andar que fica no nível da rua (cota 0) |
+| `peDireito` | não | o da casa | Pé-direito deste andar, em cm |
+| `laje` | não | `15` | Espessura da laje embaixo deste andar, em cm |
+| `cota` | não | calculada | Altura do piso em relação à rua, em cm (só para meio-nível) |
+| `vazios` | não | `[]` | Recortes no piso deste andar (pé-direito duplo): `x`, `y`, `largura`, `comprimento` ou `pontos` |
+
+</details>
+
+<details>
+<summary><b>Terreno e telhado</b> (no nível da casa)</summary>
+
+| Campo | Padrão | Descrição |
+|---|---|---|
+| `terreno.desce` | plano | Para onde o terreno desce: `'norte'`, `'sul'`, `'leste'` ou `'oeste'` |
+| `terreno.desnivel` | | Quanto ele desce de um lado da casa ao outro, em cm |
+| `telhado.tipo` | `'nenhum'` | `'laje'`, `'duas-aguas'` ou `'quatro-aguas'` |
+| `telhado.inclinacao` | `30` | Inclinação dos panos, em % |
+| `telhado.beiral` | `50` | Quanto o telhado passa das paredes, em cm |
+
+</details>
+
+<details>
+<summary><b>Escada</b> (dentro de <code>escadas</code>)</summary>
+
+| Campo | Obrigatório | Padrão | Descrição |
+|---|---|---|---|
+| `de`, `para` | **sim** | | `id` do andar onde ela começa e do andar logo acima |
+| `x`, `y`, `largura`, `comprimento` | **sim** | | Retângulo que ela ocupa na planta, em cm |
+| `tipo` | não | `'reta'` | `'reta'`, `'L'`, `'U'` ou `'caracol'` |
+| `sobe` | não | `'norte'` | Para que lado se sobe: `'norte'`, `'sul'`, `'leste'` ou `'oeste'` |
+| `giro` | não | `'direita'` | Em L, U e caracol: para que lado ela vira |
+| `lance` | não | `90` | Em L e U: largura de cada lance, em cm |
+| `volta` | não | `360` | Na caracol: quanto ela gira, em graus |
+| `id`, `nome` | não | gerados | Identificador e nome exibido |
 
 </details>
 
@@ -315,7 +458,8 @@ No fim, o terminal mostra o link do seu site (algo como `https://seu-projeto.web
 ```
 planta-casa/
 ├── public/                     # tudo o que vai para o site
-│   ├── index.html              # só a marcação da página
+│   ├── index.html              # página inicial (apresentação, catálogo, como funciona)
+│   ├── app.html                # o app: planta 2D, 3D, Caminhar e Editor (abre a aba pelo #2d, #3d, #caminhar, #editor)
 │   ├── assets/                 # favicon e a planta exportada em SVG (Inkscape/Figma)
 │   ├── css/
 │   │   ├── base.css            # design tokens (cores, fontes) e reset
@@ -336,6 +480,7 @@ planta-casa/
 │       │   ├── modelo3d/       # cena three.js e construção do modelo
 │       │   ├── passeio/        # aba Caminhar: primeira pessoa com colisão
 │       │   ├── editor/         # aba Editor: operações, formulário e exportação
+│       │   ├── fotos-ia/       # "Planta por fotos": envio das fotos, chamada à IA e resultado
 │       │   ├── painel.js       # detalhes + lista de cômodos
 │       │   ├── cabecalho.js
 │       │   ├── abas.js         # alterna entre 2D, 3D, Caminhar e Editor

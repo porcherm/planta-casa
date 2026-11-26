@@ -16,7 +16,8 @@
 .dialogo::backdrop { background: rgba(15, 34, 51, .45); backdrop-filter: blur(2px); }
 .dialogo h2 { margin: 0 0 var(--s5); font-family: var(--f-display); font-weight: 600; font-size: var(--t-lg); line-height: 1.15; color: var(--secondary); }
 .dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s3); }
-.dialogo-campos .ed-campo:first-child { grid-column: 1 / -1; }
+.dialogo-campos .ed-campo:first-child,
+.dialogo-campos .ed-campo.inteiro { grid-column: 1 / -1; }
 .dialogo-resumo { margin: var(--s4) 0 0; font-family: var(--f-mono); font-size: var(--t-sm); color: var(--ok); }
 .dialogo-resumo.erro { color: var(--danger); }
 .dialogo-nota { margin: var(--s3) 0 0; font-size: var(--t-sm); color: var(--muted); }
@@ -32,11 +33,7 @@
   body > *:not(#impressao) { display: none !important; }
 
   #impressao {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4mm;
-    break-inside: avoid;
+    display: block;
     color: #0F2233;
     font-family: var(--f-body);
     print-color-adjust: exact;
@@ -61,7 +58,16 @@
     --room-sel: #fff;
   }
 
-  #impressao { box-sizing: border-box; }
+  /* Uma folha por andar: planta centralizada e carimbo no pé de cada página */
+  #impressao .imp-folha {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4mm;
+    box-sizing: border-box;
+    break-inside: avoid;
+  }
+  #impressao .imp-folha + .imp-folha { break-before: page; }
   #impressao .imp-planta { display: block; margin: auto 0; } /* centraliza no espaço acima do carimbo */
   #impressao .cam-grade,
   #impressao .room .anel { display: none; }
@@ -70,7 +76,8 @@
   /* Camadas desligadas em "Mostrar" também saem da impressão */
   #impressao .sem-nomes .cam-nomes,
   #impressao .sem-cotas .cam-cotas,
-  #impressao .sem-portas .cam-portas { display: none; }
+  #impressao .sem-portas .cam-portas,
+  #impressao .sem-fantasma .cam-fantasma { display: none; }
 
   /* Carimbo: nome, barra de escala e informações */
   .imp-carimbo {

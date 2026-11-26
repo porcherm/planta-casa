@@ -1,0 +1,397 @@
+/* ==========================================================================
+   Página inicial (index.html) — segue o layout do Figma "Roomprint — Novo design"
+   Usa os tokens de base.css: marfim (60%) · petróleo (30%) · coral (10%)
+   ========================================================================== */
+
+.inicio {
+  --lp-container: 1240px;
+  --lp-tinta: #0F2233;          /* fundo escuro (painel, rodapé) */
+  --lp-tinta-suave: #163049;
+  --lp-inverso: #F6F2EB;
+  --lp-inverso-suave: #A9BCCB;
+  --lp-borda-escura: rgba(246, 242, 235, .12);
+  line-height: 1.55;
+}
+
+.lp-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.lp-container {
+  max-width: calc(var(--lp-container) + 2 * var(--s5));
+  margin-inline: auto;
+  padding-inline: var(--s5);
+}
+@media (max-width: 640px) {
+  .lp-container { padding-inline: var(--s4); }
+}
+
+.inicio h1,
+.inicio h2,
+.inicio h3 { margin: 0; }
+.inicio p { margin: 0; }
+
+/* ---------- Botões ---------- */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border-radius: var(--r-xs);
+  border: 1px solid transparent;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform .15s var(--ease), background-color .15s var(--ease), box-shadow .15s var(--ease), border-color .15s var(--ease);
+}
+.lp-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.lp-btn:active { transform: translateY(1px); box-shadow: none; }
+
+.lp-btn.primario { background: var(--accent); color: var(--on-accent); }
+.lp-btn.primario:hover { filter: brightness(1.05); }
+.lp-btn.petroleo { background: var(--secondary); color: var(--on-secondary); }
+.lp-btn.petroleo:hover { background: var(--secondary-hover); }
+.lp-btn.claro { background: var(--surface); color: var(--fg); }
+.lp-btn.contorno { color: var(--lp-inverso); border-color: rgba(246, 242, 235, .55); }
+.lp-btn.contorno:hover { background: rgba(246, 242, 235, .1); border-color: var(--lp-inverso); }
+.lp-btn.claro:focus-visible,
+.lp-btn.contorno:focus-visible { outline-color: var(--lp-inverso); }
+
+/* ---------- Cabeçalho ---------- */
+.lp-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(225, 215, 200, .92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.lp-nav {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s5);
+}
+.lp-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  color: inherit;
+  text-decoration: none;
+}
+.lp-brand svg { flex: none; }
+.lp-brand-txt { display: flex; flex-direction: column; line-height: 1.15; }
+.lp-brand-nome { font-size: .94rem; font-weight: 700; letter-spacing: .14em; }
+.lp-brand-sub { font-size: .72rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+
+.lp-menu { display: flex; align-items: center; gap: 28px; font-size: .9rem; }
+.lp-menu a { color: var(--muted); text-decoration: none; padding-block: var(--s2); }
+.lp-menu a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--accent); }
+
+/* ---------- Hero ---------- */
+.lp-hero { padding: 36px 0 56px; }
+.lp-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: var(--s5);
+  align-items: stretch;
+}
+.lp-hero-visual {
+  position: relative;
+  isolation: isolate;
+  min-height: 490px;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s5);
+  color: var(--lp-inverso);
+  background: linear-gradient(127deg, #24618F 0%, var(--petroleo) 55%, var(--lp-tinta) 100%);
+}
+.lp-hero-arte { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.lp-selo {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(246, 242, 235, .14);
+  border: 1px solid rgba(246, 242, 235, .28);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.lp-hero-conteudo h1 {
+  max-width: 14ch;
+  margin-bottom: 14px;
+  font-size: clamp(2rem, 1.2rem + 2.6vw, 2.875rem);
+  line-height: 1.08;
+  color: var(--lp-inverso);
+}
+.lp-hero-conteudo p { max-width: 47ch; margin-bottom: 22px; color: rgba(246, 242, 235, .86); }
+.lp-acoes { display: flex; flex-wrap: wrap; gap: var(--s3); }
+
+/* Painel técnico */
+.lp-painel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s5);
+  padding: 28px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--lp-borda-escura);
+  background: var(--lp-tinta);
+  color: var(--lp-inverso);
+}
+.lp-painel-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s3);
+  padding-bottom: var(--s4);
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--lp-borda-escura);
+}
+.lp-painel-rotulo {
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--lp-inverso-suave);
+}
+.lp-painel-area {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(228, 101, 60, .16);
+  color: var(--coral);
+  font-family: var(--f-mono);
+  font-size: .78rem;
+  font-weight: 500;
+}
+.lp-esboco {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  grid-template-rows: minmax(110px, auto) minmax(95px, auto);
+  gap: 10px;
+  padding: 18px;
+  border-radius: var(--r-md);
+  border: 1px dashed rgba(246, 242, 235, .22);
+  background: var(--lp-tinta-suave);
+}
+.lp-comodo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding: 10px 12px;
+  border-radius: var(--r-xs);
+  border: 1px solid rgba(246, 242, 235, .25);
+  background: rgba(246, 242, 235, .03);
+}
+.lp-comodo.social {
+  grid-row: span 2;
+  border-color: rgba(228, 101, 60, .45);
+  background: rgba(228, 101, 60, .10);
+}
+.lp-comodo-nome { font-size: .82rem; font-weight: 600; }
+.lp-comodo-med { font-family: var(--f-mono); font-size: .72rem; color: var(--lp-inverso-suave); }
+.lp-specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s3);
+  padding-top: 18px;
+  border-top: 1px solid var(--lp-borda-escura);
+}
+.lp-specs strong { display: block; font-family: var(--f-display); font-size: 1.06rem; font-weight: 600; }
+.lp-specs span { font-size: .75rem; color: var(--lp-inverso-suave); }
+
+/* ---------- Seções ---------- */
+.lp-secao { padding: 28px 0 64px; scroll-margin-top: 72px; }
+.lp-secao-final { padding-top: 64px; padding-bottom: 72px; }
+.lp-secao-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--s5);
+  margin-bottom: 28px;
+}
+.lp-secao-topo p,
+.lp-apoio { max-width: 42ch; color: var(--muted); font-size: .94rem; }
+.lp-kicker {
+  margin-bottom: 6px;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--petroleo);
+}
+.inicio h2 {
+  max-width: 20ch;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+  line-height: 1.18;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+/* Cards */
+.lp-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.lp-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.lp-card-midia { position: relative; height: 210px; }
+.lp-card-midia svg { display: block; width: 100%; height: 100%; }
+.lp-card-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 253, 249, .94);
+  font-size: .72rem;
+  font-weight: 600;
+}
+.lp-card-corpo { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 20px; }
+.lp-card-topo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
+.lp-card-topo h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.12rem; }
+.lp-card-valor { flex: none; font-family: var(--f-mono); font-size: .875rem; font-weight: 500; color: var(--petroleo); }
+.lp-card-corpo > p { font-size: .875rem; color: var(--muted); }
+.lp-card-meta {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s2);
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+/* ---------- Faixa "Como funciona" ---------- */
+.lp-faixa {
+  padding: 64px 0;
+  scroll-margin-top: 72px;
+  background: var(--surface-sunken);
+  border-block: 1px solid var(--line);
+}
+.lp-faixa-grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: var(--s6);
+  align-items: center;
+}
+.lp-faixa-visual {
+  position: relative;
+  height: 430px;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--lp-tinta);
+}
+.lp-faixa-visual svg { display: block; width: 100%; height: 100%; }
+.lp-escala {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  padding: 6px 10px;
+  border-radius: var(--r-xs);
+  background: rgba(246, 242, 235, .1);
+  color: var(--lp-inverso);
+  font-family: var(--f-mono);
+  font-size: .75rem;
+  font-weight: 500;
+}
+.lp-legenda {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: .78rem;
+  font-weight: 500;
+}
+.lp-legenda i { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+.inicio .lp-apoio { max-width: 60ch; margin-top: 10px; }
+
+.lp-pilares { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-top: var(--s5); }
+.lp-pilar {
+  display: block;
+  padding: 18px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease), transform .15s var(--ease);
+}
+.lp-pilar:hover { border-color: var(--petroleo); box-shadow: var(--shadow-2); transform: translateY(-2px); }
+.lp-pilar-num {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--f-mono);
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+.lp-pilar h3 { margin-bottom: 6px; font-size: 1rem; font-weight: 600; }
+.lp-pilar p { font-size: .845rem; color: var(--muted); }
+
+.lp-cta { display: flex; justify-content: center; margin-top: 28px; }
+
+/* ---------- Rodapé ---------- */
+.lp-rodape { padding: 44px 0; background: var(--lp-tinta); color: var(--lp-inverso); }
+.lp-rodape-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.lp-rodape-marca { color: inherit; text-decoration: none; font-weight: 700; letter-spacing: .14em; }
+.lp-rodape-nota,
+.lp-paleta span { font-size: .82rem; color: var(--lp-inverso-suave); }
+.lp-paleta { display: flex; align-items: center; gap: 10px; }
+.lp-paleta i { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(246, 242, 235, .3); }
+.lp-rodape :focus-visible,
+.lp-painel :focus-visible { outline-color: var(--lp-inverso); }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 1040px) {
+  .lp-menu { gap: var(--s5); }
+}
+@media (max-width: 960px) {
+  .lp-hero-grid,
+  .lp-faixa-grid { grid-template-columns: 1fr; }
+  .lp-cards { grid-template-columns: 1fr 1fr; }
+  .lp-secao-topo { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 760px) {
+  .lp-menu { display: none; }
+}
+@media (max-width: 640px) {
+  .lp-cards,
+  .lp-pilares { grid-template-columns: 1fr; }
+  .lp-hero-visual { min-height: 420px; padding: var(--s5); }
+  .lp-hero-arte { opacity: .35; } /* em tela estreita a planta fica atrás do título */
+  .lp-painel { padding: 20px; }
+  .lp-esboco { grid-template-rows: minmax(96px, auto) minmax(88px, auto); padding: 12px; }
+  .lp-faixa-visual { height: 320px; }
+  .lp-btn { padding-block: 13px; }
+}

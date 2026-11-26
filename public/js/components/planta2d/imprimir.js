@@ -13,6 +13,8 @@ import { TIPOS_COMODO } from '../../constants/tipos.js';
 import { $, escaparHtml } from '../../utils/dom.js';
 import { formatarArea } from '../../utils/formatar.js';
 import { desenharPlanta } from './desenho.js';
+import { andarVizinho, areaInterna } from '../../domain/andares.js';
+import { formatarCota } from '../seletor-andar.js';
 
 /** Tamanho no papel (mm) de uma medida real em cm, na escala 1:N. */
 const emMm = (cm, escala) => (cm * 10) / escala;
@@ -85,19 +87,45 @@ export function iniciarImpressao(store) {
     escala: $('imp-escala').value === 'auto' ? 'auto' : Number($('imp-escala').value),
   });
 
-  const desenhar = () => desenharPlanta(store.dados, { prefixo: 'imp-' });
+  const varios = () => store.dados.andares.length > 1;
+  /** Andares que vão para o papel: o visível, ou todos (uma folha cada). */
+  const andaresParaImprimir = () =>
+    (varios() && $('imp-andares').value === 'todos' ? store.dados.andares : [store.andar]);
+
+  // Todos os andares usam o enquadramento da casa: mesma escala e mesma posição em todas as folhas
+  const desenhar = (andar, prefixo = 'imp-') => desenharPlanta(andar, {
+    prefixo,
+    casa: store.dados,
+    fantasma: andarVizinho(store.dados, andar.id, 'abaixo'),
+  });
 
   function atualizarResumo() {
-    const layout = escolherLayout(desenhar().viewBox, pedido());
-    resumo.textContent = descricaoLayout(layout);
+    const layout = escolherLayout(desenhar(store.andar).viewBox, pedido());
+    const folhas = andaresParaImprimir().length;
+    resumo.textContent = descricaoLayout(layout) + (folhas > 1 ? ` ${folhas} folhas, uma por andar.` : '');
     resumo.classList.toggle('erro', !layout.cabe);
   }
 
-  /** Monta o bloco que só aparece na impressão. */
-  function montarImpressao(layout) {
-    const { markup, viewBox } = desenhar();
+  /** Uma folha: a planta de um andar e o carimbo. */
+  function montarFolha(andar, i, layout, camadas) {
+    const prefixo = `imp-${i}-`;
+    const { markup, viewBox } = desenhar(andar, prefixo);
     const { dados } = store;
-    const areaInterna = dados.comodos.filter((c) => !TIPOS_COMODO[c.tipo].externo).reduce((s, c) => s + c.area, 0);
+    const area = areaInterna(andar.comodos, TIPOS_COMODO);
+    const qual = varios() ? ` · ${escaparHtml(andar.nome)} (piso a ${formatarCota(andar.cota)} m)` : '';
+    return '<div class="imp-folha">' +
+      `<svg class="imp-planta ${camadas}" width="${layout.largura}mm" height="${layout.altura}mm" data-prefixo="${prefixo}" ` +
+      `viewBox="${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}" xmlns="http://www.w3.org/2000/svg">${markup}</svg>` +
+      '<div class="imp-carimbo">' +
+        `<div class="imp-titulo"><strong>${escaparHtml(dados.nome)}</strong><span>Planta baixa${qual} · medidas internas em cm</span></div>` +
+        `<div class="imp-escala">${desenharBarraDeEscala(layout.escala)}<span>Escala 1:${layout.escala} · ${layout.papel}</span></div>` +
+        `<div class="imp-info"><span>Área interna${varios() ? ' do andar' : ''}: ${formatarArea(area)}</span>` +
+        `<span>${new Date().toLocaleDateString('pt-BR')} · Roomprint</span></div>` +
+      '</div></div>';
+  }
+
+  /** Monta o bloco que só aparece na impressão (uma folha por andar escolhido). */
+  function montarImpressao(layout) {
     // Respeita as camadas desligadas em "Mostrar" na planta 2D
     const camadas = [...$('planta').classList].filter((c) => c.startsWith('sem-')).join(' ');
 
@@ -107,15 +135,11 @@ export function iniciarImpressao(store) {
       bloco.setAttribute('aria-hidden', 'true');
       document.body.appendChild(bloco);
     }
-    bloco.innerHTML =
-      `<svg class="imp-planta ${camadas}" width="${layout.largura}mm" height="${layout.altura}mm" ` +
-      `viewBox="${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}" xmlns="http://www.w3.org/2000/svg">${markup}</svg>` +
-      '<div class="imp-carimbo">' +
-        `<div class="imp-titulo"><strong>${escaparHtml(dados.nome)}</strong><span>Planta baixa · medidas internas em cm</span></div>` +
-        `<div class="imp-escala">${desenharBarraDeEscala(layout.escala)}<span>Escala 1:${layout.escala} · ${layout.papel}</span></div>` +
-        `<div class="imp-info"><span>Área interna: ${formatarArea(areaInterna)}</span>` +
-        `<span>${new Date().toLocaleDateString('pt-BR')} · Roomprint</span></div>` +
-      '</div>';
+    bloco.innerHTML = andaresParaImprimir().map((a, i) => montarFolha(a, i, layout, camadas)).join('');
+    // Cada folha tem os seus padrões (ids com prefixo próprio): a hachura de "a confirmar" aponta para o dela
+    bloco.querySelectorAll('svg[data-prefixo]').forEach((svg) => {
+      svg.querySelectorAll('.piso.indefinido').forEach((p) => { p.style.fill = `url(#${svg.dataset.prefixo}hachura)`; });
+    });
 
     let pagina = $('imp-pagina');
     if (!pagina) {
@@ -125,19 +149,20 @@ export function iniciarImpressao(store) {
     const [curto, longo] = IMPRESSAO.papeis[layout.papel];
     const [w, h] = layout.orientacao === 'paisagem' ? [longo, curto] : [curto, longo];
     pagina.textContent = `@page { size: ${w}mm ${h}mm; margin: ${IMPRESSAO.margem}mm; }`;
-    // Ocupa a folha toda: planta centralizada e carimbo no pé da página (1 mm de folga
-    // evita que arredondamentos do navegador empurrem o carimbo para uma 2ª página)
-    bloco.style.height = `${h - IMPRESSAO.margem * 2 - 1}mm`;
+    // Cada folha ocupa a página toda: planta centralizada e carimbo no pé (1 mm de folga
+    // evita que arredondamentos do navegador empurrem o carimbo para a página seguinte)
+    bloco.querySelectorAll('.imp-folha').forEach((f) => { f.style.height = `${h - IMPRESSAO.margem * 2 - 1}mm`; });
   }
 
   $('imprimir-btn').addEventListener('click', () => {
+    $('imp-andares-campo').hidden = !varios();
     atualizarResumo();
     dialogo.showModal();
   });
   dialogo.addEventListener('change', atualizarResumo);
   $('imp-cancelar').addEventListener('click', () => dialogo.close());
   $('imp-confirmar').addEventListener('click', () => {
-    const layout = escolherLayout(desenhar().viewBox, pedido());
+    const layout = escolherLayout(desenhar(store.andar).viewBox, pedido());
     montarImpressao(layout);
     dialogo.close();
     // Espera o diálogo fechar e o bloco ser desenhado antes de abrir a impressão

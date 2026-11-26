@@ -32,10 +32,46 @@ export const ESTADOS = {
   real: { badge: 'Medidas reais', ok: true },
 };
 
+/** Tipos de escada (rótulo exibido no editor). */
+export const TIPOS_ESCADA = {
+  reta: 'Reta',
+  L: 'Em L (com patamar)',
+  U: 'Em U (com patamar)',
+  caracol: 'Caracol',
+};
+
+/** Para onde a escada sobe, na planta (y cresce para baixo). */
+export const DIRECOES_ESCADA = {
+  norte: 'Para cima da planta',
+  leste: 'Para a direita',
+  sul: 'Para baixo da planta',
+  oeste: 'Para a esquerda',
+};
+
+/**
+ * Medidas de escada (cm). Faixas de conforto usuais: espelho (altura do degrau)
+ * de 16 a 18 cm, piso de 28 a 32 cm e a fórmula de Blondel (2 × espelho + piso)
+ * entre 63 e 65 cm. Os avisos do editor usam uma faixa um pouco mais larga.
+ */
+export const ESCADA = {
+  espelhoIdeal: 17.5,
+  pisoIdeal: 28,
+  lance: 90,
+  volta: 360,
+  /** Diâmetro da caracol nova: com 2 m, o piso na linha do caminho fica perto de 25 cm. */
+  diametroCaracol: 200,
+  raioPoste: 8,
+  /** Altura do plano de corte da planta baixa: degraus acima dele saem tracejados. */
+  alturaCorte: 140,
+  limites: { espelhoMax: 19, pisoMin: 25, blondelMin: 60, blondelMax: 66, lanceMin: 70, caracolMin: 140 },
+};
+
 /** Valores usados quando o dado de entrada não informa o campo. */
 export const PADROES = {
   peDireito: 260,
   alturaPorta: 210,
   peitoril: 100,
   topoJanela: 210,
+  /** Espessura da laje entre um andar e o de baixo (cm). */
+  laje: 15,
 };

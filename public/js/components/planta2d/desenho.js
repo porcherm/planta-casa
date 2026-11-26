@@ -2,7 +2,7 @@
  * Funções puras que transformam os dados do apartamento em marcação SVG.
  * Não tocam no DOM: recebem dados e devolvem strings.
  */
-import { TIPOS_COMODO } from '../../constants/tipos.js';
+import { TIPOS_COMODO, ESCADA } from '../../constants/tipos.js';
 import { PLANTA_2D } from '../../constants/visualizacao.js';
 import { limites, gerarParedes, folhaDaPorta } from '../../domain/geometria.js';
 import { escaparHtml } from '../../utils/dom.js';
@@ -15,17 +15,24 @@ import { pontosSvg, linha, texto, girar, grupo } from '../../utils/svg.js';
  * `prefixo` diferencia os ids internos (padrões, recortes) quando há mais de
  * um SVG da planta na mesma página, como na planta 2D e no editor.
  */
-export function desenharPlanta(dados, { prefixo = '' } = {}) {
+export function desenharPlanta(dados, { prefixo = '', casa = null, fantasma = null } = {}) {
   const total = limites(dados.comodos, false);
   const interno = limites(dados.comodos, true);
+  // Com a casa: todos os andares usam o mesmo enquadramento e a mesma grade,
+  // então trocar de andar não "pula" e as paredes coincidem na tela e no papel
+  const enquadrar = casa ? limites(casa.comodos, false) : total;
+  const origemGrade = casa ? limites(casa.comodos, true) : interno;
   const m = PLANTA_2D.margem;
-  const viewBox = { x: total.minX - m, y: total.minY - m, w: total.w + m * 2, h: total.h + m * 2 };
+  const viewBox = { x: enquadrar.minX - m, y: enquadrar.minY - m, w: enquadrar.w + m * 2, h: enquadrar.h + m * 2 };
   const { paredes, guardas } = gerarParedes(dados);
 
   const markup = [
-    desenharDefs(dados.comodos, interno, prefixo),
+    desenharDefs(dados.comodos, origemGrade, prefixo),
     desenharGrade(viewBox, prefixo),
     desenharPisos(dados.comodos, prefixo),
+    fantasma ? desenharFantasma(fantasma) : '',
+    casa ? desenharEscadas(dados, casa) : '',
+    casa ? desenharVazios(dados, casa) : '',
     desenharVaos(dados),
     guardas.map((s) => linha('guarda', ...s)).join(''),
     paredes.map((s) => linha('parede', ...s)).join(''),
@@ -70,6 +77,108 @@ function desenharPisos(comodos, prefixo) {
       `<polygon class="piso ${r.tipo}" points="${pts}"/>` +
       `<polygon class="anel" clip-path="url(#${prefixo}clip-${r.id})" points="${pts}"/></g>`;
   }).join('');
+}
+
+/** Paredes do andar de baixo, finas e tracejadas, para alinhar as paredes deste andar. */
+function desenharFantasma(andarDeBaixo) {
+  const { paredes } = gerarParedes(andarDeBaixo);
+  return grupo('cam-fantasma', paredes.map((s) => linha('fantasma', ...s)).join(''));
+}
+
+/* ---------- Escadas ---------- */
+
+/**
+ * Escadas que tocam este andar, como numa planta baixa:
+ * - no andar de baixo: "SOBE", degraus até o plano de corte e, acima dele,
+ *   tracejados, com a linha de quebra no meio;
+ * - no andar de cima: a escada inteira vista de cima, "DESCE", o contorno do
+ *   buraco na laje e o guarda-corpo (menos na borda de chegada).
+ */
+function desenharEscadas(andar, casa) {
+  return (casa.escadas || [])
+    .filter((e) => e.de === andar.id || e.para === andar.id)
+    .map((e) => desenharEscada(e, e.de === andar.id ? 'sobe' : 'desce'))
+    .join('');
+}
+
+function desenharEscada(e, papel) {
+  const g = e.geo;
+  const sobe = papel === 'sobe';
+  const corte = g.degraus.find((d) => d.altura > ESCADA.alturaCorte);
+  let s = `<g class="escada ${papel}" data-escada="${escaparHtml(e.id)}" tabindex="0" role="button" ` +
+    `aria-label="${escaparHtml(e.nome)}, ${sobe ? 'sobe' : 'desce'}, ${g.espelhos} degraus">` +
+    `<polygon class="escada-area" points="${pontosSvg(g.contorno)}"/>`;
+
+  for (const d of g.degraus) {
+    const oculto = sobe && d.altura > ESCADA.alturaCorte;
+    s += `<polygon class="degrau${oculto ? ' oculto' : ''}" points="${pontosSvg(d.pontos)}"/>`;
+  }
+  if (e.tipo === 'caracol') {
+    s += `<circle class="escada-poste" cx="${g.centro[0]}" cy="${g.centro[1]}" r="${g.raioPoste}"/>`;
+  }
+  // Linha de quebra: diagonal no degrau do plano de corte
+  if (sobe && corte) {
+    const [a, , c] = corte.pontos.length === 4 ? corte.pontos : [corte.pontos[0], null, corte.pontos[Math.floor(corte.pontos.length / 2)]];
+    s += linha('escada-corte', a[0], a[1], c[0], c[1]);
+  }
+  // Seta pela linha do caminho: sobe a partir da partida; no andar de cima, desce a partir da chegada
+  const caminho = sobe ? g.caminho : [...g.caminho].reverse();
+  s += `<polyline class="escada-linha" points="${pontosSvg(caminho)}"/>`;
+  const [ini] = caminho;
+  s += `<circle class="escada-inicio" cx="${ini[0]}" cy="${ini[1]}" r="6"/>` + setaNoFim(caminho);
+  s += rotuloDaEscada(caminho, sobe ? 'SOBE' : 'DESCE');
+
+  if (!sobe) {
+    s += g.bordas.filter((b) => !b.abertaEmCima).map((b) => linha('escada-guarda', ...b.seg)).join('');
+  }
+  return s + '</g>';
+}
+
+/* ---------- Vazios (pé-direito duplo) ---------- */
+
+/**
+ * Vazios do andar: contorno com um "X" (convenção de planta para "aqui não
+ * há piso"), o rótulo e o guarda-corpo. Os vazios do andar de cima aparecem
+ * aqui como projeção tracejada, marcando o pé-direito duplo.
+ */
+function desenharVazios(andar, casa) {
+  const meio = (bb) => [(bb.minX + bb.maxX) / 2, (bb.minY + bb.maxY) / 2];
+  const aqui = (andar.vazios || []).map((v) => {
+    const [cx, cy] = meio(v.bb);
+    const xis = linha('vazio-x', v.bb.minX, v.bb.minY, v.bb.maxX, v.bb.maxY) + linha('vazio-x', v.bb.maxX, v.bb.minY, v.bb.minX, v.bb.maxY);
+    const guarda = v.pontos.map((a, i) => linha('vazio-guarda', ...a, ...v.pontos[(i + 1) % v.pontos.length])).join('');
+    return `<g class="vazio" data-vazio="${escaparHtml(v.id)}" tabindex="0" role="button" aria-label="${escaparHtml(v.nome)}">` +
+      `<polygon class="vazio-area" points="${pontosSvg(v.pontos)}"/>` +
+      xis + guarda +
+      `<rect class="vazio-etiqueta" x="${cx - 46}" y="${cy - 16}" width="92" height="26" rx="4"/>` +
+      texto('vazio-txt', cx, cy + 3, 'VAZIO') + '</g>';
+  }).join('');
+  const acima = casa.andares[casa.andares.findIndex((a) => a.id === andar.id) + 1];
+  const projecoes = (acima?.vazios || []).map((v) => {
+    const [cx, cy] = meio(v.bb);
+    return `<g class="vazio-projecao"><polygon points="${pontosSvg(v.pontos)}"/>` +
+      texto('vazio-proj-txt', cx, v.bb.minY + 22, 'pé-direito duplo') + '</g>';
+  }).join('');
+  return projecoes + aqui;
+}
+
+/** Ponta de seta no fim de uma linha poligonal. */
+function setaNoFim(caminho) {
+  const b = caminho[caminho.length - 1], a = caminho[caminho.length - 2];
+  const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+  const t = 18, l = 9;
+  const p = (dx, dy) => `${b[0] + dx * Math.cos(ang) - dy * Math.sin(ang)},${b[1] + dx * Math.sin(ang) + dy * Math.cos(ang)}`;
+  return `<polygon class="escada-seta" points="${p(0, 0)} ${p(-t, -l)} ${p(-t, l)}"/>`;
+}
+
+/** "SOBE" / "DESCE" junto ao começo da seta, de pé quando o primeiro trecho é vertical. */
+function rotuloDaEscada(caminho, textoRotulo) {
+  const [a, b] = caminho;
+  const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+  const x = a[0] + Math.cos(ang) * 34, y = a[1] + Math.sin(ang) * 34;
+  const vertical = Math.abs(Math.sin(ang)) > 0.7;
+  const giro = vertical ? girar(-90, x + 14, y) : '';
+  return texto('escada-txt', vertical ? x + 14 : x, vertical ? y : y - 12, textoRotulo, giro);
 }
 
 /** Preenche o piso no vão aberto (sem porta), cobrindo a espessura da parede. */
