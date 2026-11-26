@@ -145,6 +145,7 @@
           <button type="button" class="btn" id="corte-andar" aria-pressed="false" title="Esconde os andares acima do andar escolhido, para ver por dentro" hidden>Só até este andar</button>
           <button type="button" class="btn" id="terreno-3d" aria-pressed="false" title="Esconde o terreno para ver o subsolo por fora" hidden>Ocultar terreno</button>
           <button type="button" class="btn" id="telhado-3d" aria-pressed="false" title="Mostra o telhado (fica escondido para dar para ver por dentro)" hidden>Mostrar telhado</button>
+          <button type="button" class="btn" id="baixar-glb" title="Baixa o modelo 3D (.glb) para abrir no Blender, SketchUp ou em visualizadores de realidade aumentada">Baixar 3D (.glb)</button>
         </div>
         <div class="fallback" id="carregando-3d" hidden>Carregando o 3D…</div>
         <div class="fallback" id="fallback-3d" hidden>O modelo 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
@@ -159,7 +160,7 @@
         </div>
         <div class="overlay ov-bottom passeio-base">
           <div class="passeio-acoes">
-            <button type="button" class="btn" id="passeio-reiniciar">Voltar ao centro do cômodo</button>
+            <button type="button" class="btn" id="passeio-reiniciar"><span>Voltar ao centro<span class="so-largo"> do cômodo</span></span></button>
             <div class="passeio-andar" id="passeio-andar" hidden>
               <button type="button" class="btn" id="passeio-subir" title="Subir um andar (Page Up)">▲ Subir andar</button>
               <button type="button" class="btn" id="passeio-descer" title="Descer um andar (Page Down)">▼ Descer andar</button>

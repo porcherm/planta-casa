@@ -180,18 +180,25 @@ export function geometriaDaEscada(e) {
     bordas: poco
       ? bordasDoContorno(contorno, (_, __, i) => (i === 0 ? { embaixo: true } : i === chegada ? { emCima: true } : null))
       // Sem poço, entrada e chegada ficam na mesma borda (v = 0), uma em cada metade
-      : bordasSemPoco(contorno, P, W, l),
+      : bordasSemPoco(contorno, P, W, l, D),
   });
 }
 
-/** U sem poço: a borda de partida (v = 0) é dividida em entrada (esquerda) e chegada (direita). */
-function bordasSemPoco(contorno, P, W, l) {
+/**
+ * U sem poço: a borda de partida (v = 0) é dividida em entrada (esquerda) e
+ * chegada (direita), e entre os dois lances entra uma divisória (`interna`):
+ * sem ela, daria para passar de lado do começo de um lance para o fim do outro.
+ * A divisória só conta como obstáculo; não vira guarda-corpo no desenho.
+ */
+function bordasSemPoco(contorno, P, W, l, D) {
   const bordas = bordasDoContorno(contorno, () => null).slice(1);
   const [a, b] = [P(0, 0), P(W - l, 0)];
   const [c, d] = [P(W - l, 0), P(W, 0)];
+  const [m0, m1] = [P(W - l, 0), P(W - l, D - l)];
   return [
     { seg: [a[0], a[1], b[0], b[1]], abertaEmbaixo: true, abertaEmCima: false },
     { seg: [c[0], c[1], d[0], d[1]], abertaEmbaixo: false, abertaEmCima: true },
+    { seg: [m0[0], m0[1], m1[0], m1[1]], abertaEmbaixo: false, abertaEmCima: false, interna: true },
     ...bordas,
   ];
 }

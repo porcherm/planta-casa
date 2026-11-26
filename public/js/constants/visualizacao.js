@@ -52,7 +52,20 @@ export const MODELO_3D = {
   alturaParedesBaixas: 1.0,
   espessuraPiso: 0.04,
   pixelRatioMax: 2,
+  /** Luz (com tone mapping ACES): o sol marca as formas, céu e ambiente clareiam as sombras. */
+  exposicao: 0.95,
+  luzCeu: 0.42,
+  luzAmbiente: 0.1,
+  luzSol: 0.85,
+  /** Chão em volta da casa (quando o terreno é plano): recebe as sombras. */
+  corChao: '#DDD3C3',
+  /** Corrimão: altura acima da linha dos degraus e raio do tubo (m). */
+  alturaCorrimao: 0.9,
+  raioCorrimao: 0.022,
 };
+
+/** Exportador do modelo 3D (.glb), baixado só quando a pessoa pede. */
+export const GLTF_EXPORTER_CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js';
 
 /** Passeio em primeira pessoa (aba "Caminhar"). Distâncias em metros. */
 export const PASSEIO = {

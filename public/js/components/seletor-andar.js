@@ -41,8 +41,12 @@ export function iniciarSeletorDeAndar(store) {
     const abaixo = andarVizinho(store.dados, atual, 'abaixo');
     $('passeio-subir').disabled = !acima;
     $('passeio-descer').disabled = !abaixo;
-    $('passeio-subir').textContent = acima ? `▲ Subir para ${acima.nome}` : '▲ Subir andar';
-    $('passeio-descer').textContent = abaixo ? `▼ Descer para ${abaixo.nome}` : '▼ Descer andar';
+    // No celular, "Subir para"/"Descer para" somem (classe so-largo) e fica só o nome do andar
+    // Um só <span> por botão: o .btn é flex com espaço entre itens, e o texto partido ganharia um vão
+    $('passeio-subir').innerHTML = acima ? `<span>▲ <span class="so-largo">Subir para </span>${escaparHtml(acima.nome)}</span>` : '▲ Subir andar';
+    $('passeio-descer').innerHTML = abaixo ? `<span>▼ <span class="so-largo">Descer para </span>${escaparHtml(abaixo.nome)}</span>` : '▼ Descer andar';
+    $('passeio-subir').setAttribute('aria-label', acima ? `Subir para ${acima.nome}` : 'Subir andar');
+    $('passeio-descer').setAttribute('aria-label', abaixo ? `Descer para ${abaixo.nome}` : 'Descer andar');
     // A camada "andar de baixo" só faz sentido se houver um andar embaixo
     $('chip-fantasma').disabled = !abaixo;
   }

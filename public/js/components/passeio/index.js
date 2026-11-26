@@ -74,8 +74,9 @@ export function iniciarPasseio(store) {
     if (!cena) return;
     const { dados } = store;
     limparGrupo(cena.grupo);
-    const { andares, telhado } = construirCena(cena.grupo, dados);
+    const { andares, telhado, terreno } = construirCena(cena.grupo, dados);
     if (telhado) telhado.visible = false; // por dentro, o que se vê são os tetos
+    cena.grade.visible = !terreno; // com terreno (subsolo ou declive), ele é o chão
     centro = centroDaCena(dados);
     obstaculosPorAndar = new Map();
     obstaculosPorEscada = new Map();
@@ -111,7 +112,8 @@ export function iniciarPasseio(store) {
         const forma = new THREE.Shape(pontos.map(([x, y]) => new THREE.Vector2(x / 100 - cx, -(y / 100 - cz))));
         const teto = new THREE.Mesh(new THREE.ShapeGeometry(forma), material);
         teto.rotation.x = -Math.PI / 2;
-        teto.position.y = andar.peDireito / 100;
+        // 5 mm abaixo da laje de cima: no mesmo plano, os dois "brigariam" na tela (listras)
+        teto.position.y = andar.peDireito / 100 - 0.005;
         grupo.add(teto);
       }
     }

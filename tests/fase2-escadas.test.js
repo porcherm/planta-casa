@@ -49,6 +49,16 @@ test('L e U: patamar entra como degrau; giro à esquerda espelha', () => {
   assert.ok(area(U.contorno) < 200 * 290, 'o poço entre os lances não faz parte do contorno');
 });
 
+test('U sem vão entre os lances: divisória interna bloqueia a passagem de lado, mas não vira guarda-corpo', () => {
+  const g = geometriaDaEscada(escada({ tipo: 'U', largura: 180, comprimento: 290 }));
+  const internas = g.bordas.filter((b) => b.interna);
+  assert.equal(internas.length, 1);
+  assert.ok(!internas[0].abertaEmbaixo && !internas[0].abertaEmCima);
+  const e = { tipo: 'U', geo: g };
+  const segs = obstaculosDaEscada(e, { cx: 0, cz: 0 }).map((o) => o.seg.map((v) => Math.round(v * 100)));
+  assert.ok(segs.some(([x1, , x2]) => x1 === 90 && x2 === 90), 'a divisória (x = 90) é obstáculo para quem está na escada');
+});
+
 test('caracol: ângulo medido a partir da partida, no sentido da subida', () => {
   const e = escada({ tipo: 'caracol', largura: 180, comprimento: 180 });
   assert.deepEqual([[90, 170], [170, 90], [90, 10], [10, 90]].map(([x, y]) => Math.round(anguloNaCaracol(e, x, y))), [0, 90, 180, 270]);

@@ -115,7 +115,7 @@ export function gerarCorte(casa, { direcao = 'horizontal', posicao }) {
     // Guarda-corpo em volta dos vazios e dos buracos de escada deste andar
     const bordasComGuarda = [
       ...(andar.vazios || []).flatMap((v) => v.pontos.map((p, k) => [...p, ...v.pontos[(k + 1) % v.pontos.length]])),
-      ...(casa.escadas || []).filter((e) => e.para === andar.id).flatMap((e) => e.geo.bordas.filter((b) => !b.abertaEmCima).map((b) => b.seg)),
+      ...(casa.escadas || []).filter((e) => e.para === andar.id).flatMap((e) => e.geo.bordas.filter((b) => !b.abertaEmCima && !b.interna).map((b) => b.seg)),
     ];
     for (const s of bordasComGuarda) {
       const t = atravessa(s);

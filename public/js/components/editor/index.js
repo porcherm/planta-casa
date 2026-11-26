@@ -48,8 +48,18 @@ function impressaoDigital(texto) {
  * da página falarem do mesmo andar e do mesmo cômodo.
  */
 function igualarIds(bruto, normalizado) {
-  bruto.andares.forEach((a, i) => { a.id = normalizado.andares[i].id; });
+  bruto.andares.forEach((a, i) => {
+    a.id = normalizado.andares[i].id;
+    (a.vazios || []).forEach((v, j) => { v.id = normalizado.andares[i].vazios[j].id; });
+  });
   comodosCrus(bruto).forEach((c, i) => { c.id = normalizado.comodos[i].id; });
+  // Escadas também: um id com espaço ou repetido é corrigido na normalização,
+  // e o editor precisa achar a escada crua pelo mesmo id da desenhada
+  (bruto.escadas || []).forEach((e, i) => {
+    e.id = normalizado.escadas[i].id;
+    e.de = normalizado.escadas[i].de;
+    e.para = normalizado.escadas[i].para;
+  });
 }
 
 export function iniciarEditor(store, dadosIniciais) {
@@ -1072,6 +1082,11 @@ export function iniciarEditor(store, dadosIniciais) {
   // Trocar de andar em qualquer lugar da página troca o andar editado
   store.observarAndar((id) => {
     andarId = id;
+    // Escada que não toca o andar novo deixa de estar selecionada (ela não aparece nele)
+    if (selecao?.tipo === 'escada') {
+      const esc = (dados.escadas || []).find((e) => e.id === selecao.id);
+      if (!esc || (esc.de !== id && esc.para !== id)) selecao = null;
+    }
     if (!ativo) { renderizar(); return; }
     definirModo(null);
     renderizar();

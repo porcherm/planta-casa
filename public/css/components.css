@@ -239,6 +239,24 @@
 .ov-bottom { left: var(--s3); right: var(--s3); bottom: var(--s3); }
 .overlay .btn { box-shadow: var(--shadow-2); }
 
+/* Celular: os controles do Modelo 3D viram uma faixa só, com rolagem lateral,
+   para não cobrir o modelo (no desktop eles cabem numa linha) */
+@media (max-width: 600px) {
+  #view-3d .ov-bottom {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px 2px 6px;
+    margin: 0 calc(var(--s3) * -1);
+    padding-inline: var(--s3);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+  }
+  #view-3d .ov-bottom::-webkit-scrollbar { display: none; }
+  #view-3d .ov-bottom .btn { flex: none; white-space: nowrap; }
+  #view-3d .ov-top .tag:last-child { display: none; } /* "Arraste para girar…": no celular o gesto é óbvio */
+}
+
 .tag {
   display: inline-flex;
   align-items: center;

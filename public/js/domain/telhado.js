@@ -22,7 +22,12 @@ export const TIPOS_TELHADO = {
   'quatro-aguas': 'Quatro águas',
 };
 
-export const TELHADO = { inclinacao: 30, beiral: 50, espessuraLaje: 15, platibanda: 80 };
+/**
+ * `estrutura`: o telhado apoia num madeiramento acima das paredes (cm). Sem
+ * essa folga, o pano passaria exatamente no topo da parede e as quinas dela
+ * "furariam" o telhado no 3D.
+ */
+export const TELHADO = { inclinacao: 30, beiral: 50, espessuraLaje: 15, platibanda: 80, estrutura: 10 };
 
 export function normalizarTelhado(t) {
   if (!t || typeof t !== 'object') return { tipo: 'nenhum', inclinacao: TELHADO.inclinacao, beiral: TELHADO.beiral };
@@ -67,7 +72,8 @@ export function geometriaDoTelhado(casa) {
 
   const b = t.beiral, k = t.inclinacao / 100;
   const B = { x0: p.x0 - b, y0: p.y0 - b, x1: p.x1 + b, y1: p.y1 + b };
-  const ze = z0 - b * k; // o beiral desce um pouco abaixo do topo da parede
+  // Na linha das paredes o pano fica a `estrutura` cm acima do topo delas; no beiral desce um pouco
+  const ze = z0 + TELHADO.estrutura - b * k;
   const W = B.x1 - B.x0, D = B.y1 - B.y0;
   const aoLongoDeX = W >= D; // cumeeira no sentido do lado maior
   const meioVao = (aoLongoDeX ? D : W) / 2;
@@ -79,11 +85,12 @@ export function geometriaDoTelhado(casa) {
   const cm = (c0 + c1) / 2;
 
   if (t.tipo === 'duas-aguas') {
-    // Oitões no plano das paredes das pontas: triângulo do topo da parede até a cumeeira
-    // (na linha da parede, o pano passa exatamente na altura do topo dela)
+    // Oitões no plano das paredes das pontas: do topo da parede até o pano (que passa
+    // `estrutura` cm acima dela na linha da parede) e até a cumeeira
     const [w0, w1] = aoLongoDeX ? [p.x0, p.x1] : [p.y0, p.y1];
     const [d0, d1] = aoLongoDeX ? [p.y0, p.y1] : [p.x0, p.x1];
-    const oitao = (w) => [P(w, d0, z0), P(w, d1, z0), P(w, cm, zc)];
+    const zp = z0 + TELHADO.estrutura;
+    const oitao = (w) => [P(w, d0, z0), P(w, d1, z0), P(w, d1, zp), P(w, cm, zc), P(w, d0, zp)];
     return {
       faces: [
         { tipo: 'pano', pontos: [P(a0, c0, ze), P(a1, c0, ze), P(a1, cm, zc), P(a0, cm, zc)] },

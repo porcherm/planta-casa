@@ -9,8 +9,10 @@ import { LIMIAR_ARRASTO_PX, MODELO_3D } from '../../constants/visualizacao.js';
 import { limites } from '../../domain/geometria.js';
 import { $, lerVariavelCss } from '../../utils/dom.js';
 import { construirCena } from './construtor.js';
-import { criarCenaBase, limparGrupo, acompanharTamanho } from './cena-base.js';
-import { carregarThree, aguardarThree } from './carregar-three.js';
+import { criarCenaBase, limparGrupo, acompanharTamanho, ajustarSombras } from './cena-base.js';
+import { carregarThree, aguardarThree, carregarExportador } from './carregar-three.js';
+import { alturaMaximaDoTelhado } from '../../domain/telhado.js';
+import { nomeDoArquivo } from '../planta2d/exportar.js';
 
 export function iniciarModelo3D(store) {
   const host = $('view3d');
@@ -26,7 +28,7 @@ export function iniciarModelo3D(store) {
   function criar() {
     if (cena) return true;
     if (!window.THREE?.OrbitControls) return mostrarFallback();
-    const base = criarCenaBase(host);
+    const base = criarCenaBase(host, { sombras: true });
     if (!base) return mostrarFallback();
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 200);
@@ -56,6 +58,12 @@ export function iniciarModelo3D(store) {
     if (!cena) return;
     limparGrupo(cena.grupo);
     cena.pecas = construirCena(cena.grupo, store.dados);
+    // Sol e sombras do tamanho da casa (do subsolo ao telhado)
+    const { andares, comodos } = store.dados;
+    const F = limites(comodos, false);
+    const base = Math.min(...andares.map((a) => a.cota)) / 100;
+    const topo = (alturaMaximaDoTelhado(store.dados) ?? Math.max(...andares.map((a) => a.cota + a.peDireito))) / 100;
+    ajustarSombras(cena, Math.hypot(F.w, F.h) / 200 + 2, (base + topo) / 2);
     $('corte-andar').hidden = store.dados.andares.length < 2;
     $('terreno-3d').hidden = !cena.pecas.terreno;
     $('telhado-3d').hidden = !cena.pecas.telhado;
@@ -79,9 +87,10 @@ export function iniciarModelo3D(store) {
     for (const [id, grupo] of Object.entries(cena.pecas.andares)) grupo.visible = visiveis.has(id);
     if (cena.pecas.terreno) cena.pecas.terreno.visible = !cena.terrenoOculto;
     cena.grade.visible = !cena.pecas.terreno; // com subsolo, o terreno faz o papel do chão
-    // O telhado só aparece com todos os andares à mostra (no corte ele flutuaria)
+    // O telhado só aparece com todos os andares à mostra e as paredes inteiras
+    // (no corte ou com as paredes baixas ele ficaria flutuando)
     if (cena.pecas.telhado) {
-      cena.pecas.telhado.visible = cena.telhadoVisivel && visiveis.size === store.dados.andares.length;
+      cena.pecas.telhado.visible = cena.telhadoVisivel && !cena.paredesBaixas && visiveis.size === store.dados.andares.length;
     }
     aplicarAlturaDasParedes();
   }
@@ -136,8 +145,10 @@ export function iniciarModelo3D(store) {
     const destaque = new THREE.Color(lerVariavelCss('--accent', '#E4653C'));
     for (const piso of cena.pecas.pisos) {
       const selecionado = piso.userData.id === store.selecionadoId;
-      piso.userData.corOriginal ??= piso.material.color.clone();
-      piso.material.color.copy(selecionado ? destaque : piso.userData.corOriginal);
+      // A cor original fica no material: os pedaços de um piso recortado (escada,
+      // vazio) dividem o mesmo material, e guardar por pedaço pegaria a cor já pintada
+      piso.material.userData.corOriginal ??= piso.material.color.clone();
+      piso.material.color.copy(selecionado ? destaque : piso.material.userData.corOriginal);
     }
   }
 
@@ -185,7 +196,7 @@ export function iniciarModelo3D(store) {
   $('paredes').addEventListener('click', (e) => {
     if (!cena) return;
     cena.paredesBaixas = !cena.paredesBaixas;
-    aplicarAlturaDasParedes();
+    aplicarAndares(); // também esconde/mostra o telhado
     e.currentTarget.setAttribute('aria-pressed', String(cena.paredesBaixas));
   });
   $('portas-3d').addEventListener('click', (e) => {
@@ -216,6 +227,36 @@ export function iniciarModelo3D(store) {
     recentrarAltura();
     e.currentTarget.setAttribute('aria-pressed', String(cena.corte));
   });
+  /**
+   * Baixa o modelo como .glb (glTF binário), para abrir no Blender, SketchUp,
+   * visualizadores de AR etc. Vai do jeito que está na tela (só o que aparece).
+   */
+  $('baixar-glb').addEventListener('click', async (e) => {
+    if (!cena) return;
+    const botao = e.currentTarget;
+    const texto = botao.textContent;
+    botao.disabled = true;
+    botao.textContent = 'Gerando…';
+    try {
+      await carregarExportador();
+      const glb = await new Promise((ok, erro) => {
+        try { new THREE.GLTFExporter().parse(cena.grupo, ok, { binary: true, onlyVisible: true }); } catch (err) { erro(err); }
+      });
+      const url = URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }));
+      const a = Object.assign(document.createElement('a'), { href: url, download: nomeDoArquivo(store.dados.nome).replace(/^planta-/, 'modelo-').replace(/\.png$/, '.glb') });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (erro) {
+      console.error(erro);
+      botao.title = 'Não foi possível gerar o arquivo 3D neste navegador.';
+    } finally {
+      botao.disabled = false;
+      botao.textContent = texto;
+    }
+  });
+
   $('telhado-3d').addEventListener('click', (e) => {
     if (!cena) return;
     cena.telhadoVisivel = !cena.telhadoVisivel;

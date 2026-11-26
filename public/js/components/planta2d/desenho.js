@@ -129,7 +129,7 @@ function desenharEscada(e, papel) {
   s += rotuloDaEscada(caminho, sobe ? 'SOBE' : 'DESCE');
 
   if (!sobe) {
-    s += g.bordas.filter((b) => !b.abertaEmCima).map((b) => linha('escada-guarda', ...b.seg)).join('');
+    s += g.bordas.filter((b) => !b.abertaEmCima && !b.interna).map((b) => linha('escada-guarda', ...b.seg)).join('');
   }
   return s + '</g>';
 }

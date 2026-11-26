@@ -144,7 +144,7 @@ export function iniciarCorte(store) {
       desenhar();
     };
     moverPara(e);
-    mapa.setPointerCapture?.(e.pointerId);
+    try { mapa.setPointerCapture(e.pointerId); } catch { /* ponteiro já solto ou navegador sem suporte */ }
     const mover = (ev) => moverPara(ev);
     const soltar = () => { mapa.removeEventListener('pointermove', mover); mapa.removeEventListener('pointerup', soltar); };
     mapa.addEventListener('pointermove', mover);

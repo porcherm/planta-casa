@@ -10,6 +10,16 @@
 .passeio-acoes { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2); }
 .passeio-andar { display: flex; gap: var(--s2); flex-wrap: wrap; }
 
+/* Celular: rótulos curtos e as setas na mesma linha dos botões, sem cobrir a vista */
+@media (max-width: 600px) {
+  .so-largo { display: none; }
+  .passeio-base { flex-wrap: nowrap; gap: var(--s2); }
+  .passeio-acoes { min-width: 0; }
+  .passeio-acoes .btn { padding-inline: var(--s3); }
+  .passeio-setas { flex: none; }
+  #view-passeio .ov-top .passeio-ajuda { display: none; }
+}
+
 /* Setas na tela (úteis no celular, onde não há teclado) */
 .passeio-setas {
   display: grid;

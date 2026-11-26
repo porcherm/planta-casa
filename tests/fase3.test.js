@@ -91,7 +91,7 @@ test('telhado: duas águas sobe a inclinação certa, com cumeeira no sentido do
   const L = limites(c.andares[1].comodos, true);
   // Vão = lado menor + paredes + beirais; a cumeeira sobe meio vão × 35%
   const vao = Math.min(L.w, L.h) + 15 + 120;
-  const beiral = topo - 60 * 0.35;
+  const beiral = topo + 10 - 60 * 0.35; // 10 cm de estrutura acima das paredes
   assert.ok(Math.abs(Math.min(...zs) - beiral) < 1e-6, 'beiral um pouco abaixo do topo da parede');
   assert.ok(Math.abs(Math.max(...zs) - (beiral + (vao / 2) * 0.35)) < 1e-6, 'altura da cumeeira');
 });

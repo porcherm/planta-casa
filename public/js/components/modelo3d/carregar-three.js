@@ -5,7 +5,7 @@
  * Os scripts são carregados em ordem (o OrbitControls depende do three.js)
  * e uma única vez: chamadas repetidas reaproveitam a mesma promessa.
  */
-import { THREE_CDN } from '../../constants/visualizacao.js';
+import { THREE_CDN, GLTF_EXPORTER_CDN } from '../../constants/visualizacao.js';
 
 let carregamento = null;
 
@@ -41,6 +41,18 @@ export async function aguardarThree(carregandoEl, avisoEl) {
   } finally {
     carregandoEl.hidden = true;
   }
+}
+
+let exportador = null;
+
+/** Baixa o GLTFExporter (só quando a pessoa pede para baixar o modelo 3D). */
+export function carregarExportador() {
+  if (window.THREE?.GLTFExporter) return Promise.resolve();
+  exportador ??= carregarThree().then(() => carregarScript(GLTF_EXPORTER_CDN)).catch((e) => {
+    exportador = null;
+    throw e;
+  });
+  return exportador;
 }
 
 /** Resolve quando `window.THREE` (com OrbitControls) estiver pronto. */
