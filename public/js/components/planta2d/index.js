@@ -9,6 +9,7 @@ import { desenharPlanta, desenharMedidasDoComodo, desenharRegua } from './desenh
 import { criarViewport } from './viewport.js';
 import { registrarGestos } from './gestos.js';
 import { exportarPng, nomeDoArquivo } from './exportar.js';
+import { andarVizinho } from '../../domain/andares.js';
 
 export function iniciarPlanta2D(store) {
   const svg = $('planta');
@@ -18,8 +19,12 @@ export function iniciarPlanta2D(store) {
 
   /* ---------- Desenho ---------- */
 
+  /** Desenha o andar visível (mesmo enquadramento para todos os andares). */
   function renderizar() {
-    const { markup, viewBox } = desenharPlanta(store.dados);
+    const { markup, viewBox } = desenharPlanta(store.andar, {
+      casa: store.dados,
+      fantasma: andarVizinho(store.dados, store.andarAtual, 'abaixo'),
+    });
     svg.innerHTML = markup;
     viewport.definirBase(viewBox);
     marcarSelecionado();
@@ -29,7 +34,7 @@ export function iniciarPlanta2D(store) {
   function marcarSelecionado() {
     svg.querySelectorAll('.room').forEach((g) => g.classList.toggle('is-sel', g.dataset.id === store.selecionadoId));
     const alvo = $('medidas-sel');
-    if (alvo) alvo.innerHTML = desenharMedidasDoComodo(store.comodoSelecionado, store.dados);
+    if (alvo) alvo.innerHTML = desenharMedidasDoComodo(store.comodoSelecionado, store.andar);
   }
 
   /* ---------- Régua ---------- */
@@ -141,7 +146,9 @@ export function iniciarPlanta2D(store) {
     botao.disabled = true;
     rotulo.textContent = 'Gerando…';
     try {
-      await exportarPng(svg, viewport.obterBase(), nomeDoArquivo(store.dados.nome));
+      const { dados, andar } = store;
+      const nome = dados.andares.length > 1 ? `${dados.nome} ${andar.nome}` : dados.nome;
+      await exportarPng(svg, viewport.obterBase(), nomeDoArquivo(nome));
     } catch (erro) {
       console.error(erro);
       dicaEl.textContent = 'Não foi possível gerar o PNG neste navegador.';
@@ -159,7 +166,11 @@ export function iniciarPlanta2D(store) {
   }));
 
   store.observar(marcarSelecionado);
-  store.observarDados(renderizar);
+  store.observarAndar(renderizar);
+  store.observarDados((_, opcoes) => {
+    renderizar();
+    if (opcoes?.reenquadrar) viewport.ajustar();
+  });
   renderizar();
   atualizarDica();
 }

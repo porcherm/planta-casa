@@ -10,7 +10,11 @@
  */
 import { PASSEIO } from '../../constants/visualizacao.js';
 import { TIPOS_COMODO } from '../../constants/tipos.js';
-import { gerarObstaculos, moverComColisao, pontoNoPoligono } from '../../domain/colisao.js';
+import {
+  gerarObstaculos, moverComColisao, pontoNoPoligono, obstaculosDeEscadasNoAndar, obstaculosDaEscada,
+} from '../../domain/colisao.js';
+import { escadasDoAndar, recortarAberturas, acompanharEscada, pontoLivreNoComodo } from '../../domain/escadas.js';
+import { andarPorId, aberturasDoTeto } from '../../domain/andares.js';
 import { $ } from '../../utils/dom.js';
 import { construirCena, centroDaCena } from '../modelo3d/construtor.js';
 import { criarCenaBase, limparGrupo, acompanharTamanho } from '../modelo3d/cena-base.js';
@@ -30,12 +34,17 @@ export function iniciarPasseio(store) {
   let cena = null; // criada sob demanda
   let ativo = false;
 
-  // Estado de quem caminha (em metros, no sistema da cena)
-  const pessoa = { x: 0, z: 0, guinada: 0, inclinacao: 0 };
+  // Estado de quem caminha (em metros, no sistema da cena) e o andar em que está
+  const pessoa = { x: 0, z: 0, guinada: 0, inclinacao: 0, andar: null };
   const pressionadas = new Set();
   let correndo = false;
-  let obstaculos = [];
+  let obstaculosPorAndar = new Map(); // id do andar → obstáculos (cada andar colide só com os seus)
+  let obstaculosPorEscada = new Map(); // id da escada → obstáculos de quem está nela
   let centro = { cx: 0, cz: 0 };
+  // Na escada: { escada, theta (graus girados, na caracol), fracao (0 embaixo … 1 em cima) }
+  let naEscada = null;
+
+  const andarDaPessoa = () => andarPorId(store.dados, pessoa.andar);
   let comodoAtual = null;
   let selecaoPropria = null; // evita "teleportar" quando a própria caminhada muda a seleção
 
@@ -65,42 +74,109 @@ export function iniciarPasseio(store) {
     if (!cena) return;
     const { dados } = store;
     limparGrupo(cena.grupo);
-    construirCena(cena.grupo, dados);
-    adicionarTetos(cena.grupo, dados);
+    const { andares, telhado, terreno } = construirCena(cena.grupo, dados);
+    if (telhado) telhado.visible = false; // por dentro, o que se vê são os tetos
+    cena.grade.visible = !terreno; // com terreno (subsolo ou declive), ele é o chão
     centro = centroDaCena(dados);
-    obstaculos = gerarObstaculos(dados, centro);
+    obstaculosPorAndar = new Map();
+    obstaculosPorEscada = new Map();
+    naEscada = null;
+    const paraCena = (s) => [s[0] / 100 - centro.cx, s[1] / 100 - centro.cz, s[2] / 100 - centro.cx, s[3] / 100 - centro.cz];
+    for (const andar of dados.andares) {
+      const escadas = escadasDoAndar(dados, andar.id);
+      // O teto tem os buracos das escadas que sobem e dos vazios do andar de cima
+      adicionarTetos(andares[andar.id], andar, aberturasDoTeto(dados, andar.id));
+      // Guarda-corpo dos vazios deste andar: ninguém cai no pé-direito duplo
+      const guardaDosVazios = (andar.vazios || []).flatMap((v) => v.pontos.map((a, j) => {
+        const b = v.pontos[(j + 1) % v.pontos.length];
+        return { seg: paraCena([a[0], a[1], b[0], b[1]]), meia: 0.03 };
+      }));
+      obstaculosPorAndar.set(andar.id, [
+        ...gerarObstaculos(andar, centro), ...obstaculosDeEscadasNoAndar(escadas, centro), ...guardaDosVazios,
+      ]);
+    }
+    for (const e of dados.escadas) obstaculosPorEscada.set(e.id, obstaculosDaEscada(e, centro));
   }
 
-  /** Teto em cada cômodo interno, para a sensação de estar dentro de casa. */
-  function adicionarTetos(grupo, dados) {
-    const material = new THREE.MeshBasicMaterial({ color: '#8e9ab2', side: THREE.DoubleSide });
-    const { cx, cz } = centroDaCena(dados);
-    for (const r of dados.comodos) {
+  /**
+   * Teto em cada cômodo interno do andar, para a sensação de estar dentro de casa.
+   * Onde uma escada sobe para o andar de cima, o teto tem o buraco dela.
+   */
+  function adicionarTetos(grupo, andar, aberturas) {
+    const material = new THREE.MeshBasicMaterial({ color: '#E6DDCE', side: THREE.DoubleSide });
+    const { cx, cz } = centro;
+    for (const r of andar.comodos) {
       if (TIPOS_COMODO[r.tipo].externo) continue;
-      const forma = new THREE.Shape(r.pontos.map(([x, y]) => new THREE.Vector2(x / 100 - cx, -(y / 100 - cz))));
-      const teto = new THREE.Mesh(new THREE.ShapeGeometry(forma), material);
-      teto.rotation.x = -Math.PI / 2;
-      teto.position.y = dados.peDireito / 100;
-      grupo.add(teto);
+      const pedacos = aberturas.length ? recortarAberturas(r.pontos, aberturas) : null;
+      for (const pontos of pedacos ?? [r.pontos]) {
+        const forma = new THREE.Shape(pontos.map(([x, y]) => new THREE.Vector2(x / 100 - cx, -(y / 100 - cz))));
+        const teto = new THREE.Mesh(new THREE.ShapeGeometry(forma), material);
+        teto.rotation.x = -Math.PI / 2;
+        // 5 mm abaixo da laje de cima: no mesmo plano, os dois "brigariam" na tela (listras)
+        teto.position.y = andar.peDireito / 100 - 0.005;
+        grupo.add(teto);
+      }
     }
+  }
+
+  /* ---------- Escadas ---------- */
+
+  const emCm = () => [(pessoa.x + centro.cx) * 100, (pessoa.z + centro.cz) * 100];
+
+  /**
+   * Depois de cada passo: entra na escada, acompanha a subida ou sai dela
+   * (a regra fica em domain/escadas.js). Retorna true enquanto está na escada.
+   */
+  function atualizarEscada() {
+    const [x, y] = emCm();
+    const antes = naEscada;
+    const r = acompanharEscada({ andar: andarDaPessoa().id, escada: naEscada && { id: naEscada.escada.id, theta: naEscada.theta } },
+      store.dados, x, y);
+    if (r.escada) {
+      naEscada = { escada: store.dados.escadas.find((e) => e.id === r.escada.id), theta: r.escada.theta, fracao: r.fracao };
+      if (!antes) atualizarRotulo();
+      return true;
+    }
+    naEscada = null;
+    if (antes) {
+      // Saiu da escada: no andar de cima ou de volta no de baixo
+      pessoa.andar = r.andar;
+      comodoAtual = null;
+      atualizarComodoAtual();
+      atualizarRotulo();
+    }
+    return false;
   }
 
   /* ---------- Posição ---------- */
 
-  /** Coloca a pessoa no meio do cômodo (ou no ponto do rótulo, em formas livres). */
+  /** Onde não dá para pôr alguém parado num andar: escadas que tocam nele e os vazios dele. */
+  function areasProibidas(idAndar) {
+    const { saem, chegam } = escadasDoAndar(store.dados, idAndar);
+    const vazios = andarPorId(store.dados, idAndar).vazios || [];
+    return [...saem, ...chegam].map((e) => e.geo.contorno).concat(vazios.map((v) => v.pontos));
+  }
+
+  /**
+   * Coloca a pessoa no meio do cômodo (ou no ponto do rótulo, em formas livres),
+   * fora das escadas que houver nele (senão o primeiro passo cairia no meio dos degraus).
+   */
   function irPara(comodo) {
     if (!comodo) return;
-    const [x, y] = comodo.rotulo || [comodo.bb.minX + comodo.bb.w / 2, comodo.bb.minY + comodo.bb.h / 2];
+    const preferido = comodo.rotulo || [comodo.bb.minX + comodo.bb.w / 2, comodo.bb.minY + comodo.bb.h / 2];
+    const [x, y] = pontoLivreNoComodo(comodo, areasProibidas(comodo.andar), preferido);
     pessoa.x = x / 100 - centro.cx;
     pessoa.z = y / 100 - centro.cz;
+    pessoa.andar = comodo.andar;
+    naEscada = null;
     comodoAtual = comodo.id;
     atualizarRotulo();
   }
 
-  /** Descobre em que cômodo a pessoa está e sincroniza com o painel. */
+  /** Descobre em que cômodo (do andar da pessoa) ela está e sincroniza com o painel. */
   function atualizarComodoAtual() {
     const x = (pessoa.x + centro.cx) * 100, y = (pessoa.z + centro.cz) * 100;
-    const achado = store.dados.comodos.find((c) => pontoNoPoligono(x, y, c.pontos));
+    const achado = andarDaPessoa().comodos.find((c) => pontoNoPoligono(x, y, c.pontos));
     const id = achado?.id ?? null;
     if (id === comodoAtual) return;
     comodoAtual = id;
@@ -112,8 +188,32 @@ export function iniciarPasseio(store) {
   }
 
   function atualizarRotulo() {
+    if (naEscada) {
+      const e = naEscada.escada;
+      rotuloLocal.textContent = `${e.nome} · ${andarPorId(store.dados, e.de).nome} ↔ ${andarPorId(store.dados, e.para).nome}`;
+      return;
+    }
     const comodo = store.dados.comodos.find((c) => c.id === comodoAtual);
-    rotuloLocal.textContent = comodo ? comodo.nome : 'fora dos cômodos';
+    const andar = store.dados.andares.length > 1 ? ` · ${andarDaPessoa().nome}` : '';
+    rotuloLocal.textContent = (comodo ? comodo.nome : 'fora dos cômodos') + andar;
+  }
+
+  /**
+   * Trocou de andar (seletor, Page Up/Down ou "Subir/Descer"): se houver um
+   * cômodo no mesmo ponto do outro andar, a pessoa fica onde está, só que lá.
+   * (Até a fase das escadas, é assim que se muda de andar caminhando.)
+   */
+  function ficarNoMesmoPonto(id) {
+    const x = (pessoa.x + centro.cx) * 100, y = (pessoa.z + centro.cz) * 100;
+    const achado = andarPorId(store.dados, id).comodos.find((c) => pontoNoPoligono(x, y, c.pontos));
+    if (!achado) return false;
+    // Em cima de uma escada ou de um vazio do outro andar, não: vai para um ponto livre do cômodo
+    if (areasProibidas(id).some((p) => pontoNoPoligono(x, y, p))) return false;
+    pessoa.andar = id;
+    naEscada = null;
+    comodoAtual = null;
+    atualizarComodoAtual(); // seleciona o cômodo onde a pessoa ficou
+    return true;
   }
 
   /* ---------- Movimento ---------- */
@@ -133,12 +233,24 @@ export function iniciarPasseio(store) {
     const seno = Math.sin(pessoa.guinada), cosseno = Math.cos(pessoa.guinada);
     const dx = (-seno * frente + cosseno * lado) * passo;
     const dz = (-cosseno * frente - seno * lado) * passo;
-    [pessoa.x, pessoa.z] = moverComColisao(pessoa.x, pessoa.z, dx, dz, PASSEIO.raio, obstaculos);
-    atualizarComodoAtual();
+    const obstaculos = naEscada
+      ? obstaculosPorEscada.get(naEscada.escada.id) || []
+      : obstaculosPorAndar.get(andarDaPessoa().id) || [];
+    // Na escada o corpo é um pouco mais fino: lances de 80 cm continuam passáveis
+    const raio = naEscada ? Math.min(PASSEIO.raio, 0.2) : PASSEIO.raio;
+    [pessoa.x, pessoa.z] = moverComColisao(pessoa.x, pessoa.z, dx, dz, raio, obstaculos);
+    if (!atualizarEscada()) atualizarComodoAtual();
   }
 
   function posicionarCamera() {
-    const altura = Math.min(PASSEIO.alturaOlhos, store.dados.peDireito / 100 - 0.15);
+    const andar = andarDaPessoa();
+    const olhos = Math.min(PASSEIO.alturaOlhos, andar.peDireito / 100 - 0.15);
+    let altura = andar.cota / 100 + olhos;
+    if (naEscada) {
+      // Sobe aos poucos, acompanhando os degraus, do piso de baixo ao de cima
+      const e = naEscada.escada;
+      altura = andarPorId(store.dados, e.de).cota / 100 + (e.geo.desnivel / 100) * naEscada.fracao + olhos;
+    }
     cena.camera.position.set(pessoa.x, altura, pessoa.z);
     cena.camera.rotation.set(pessoa.inclinacao, pessoa.guinada, 0);
   }
@@ -204,9 +316,11 @@ export function iniciarPasseio(store) {
   });
 
   // Escolher um cômodo fora do passeio (lista, 2D, 3D) leva a pessoa até ele
-  store.observar((id) => {
+  store.observar((id, { porTrocaDeAndar } = {}) => {
     if (id === selecaoPropria) { selecaoPropria = null; return; }
-    if (cena) irPara(store.comodoSelecionado);
+    if (!cena) return;
+    if (porTrocaDeAndar && ficarNoMesmoPonto(store.comodoSelecionado.andar)) return;
+    irPara(store.comodoSelecionado);
   });
   store.observarDados(() => {
     if (!cena) return;

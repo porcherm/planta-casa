@@ -30,6 +30,33 @@ export function gerarObstaculos(dados, { cx, cz }) {
   ];
 }
 
+/**
+ * Obstáculos das escadas para quem está num andar (em metros, no sistema da cena):
+ * - escadas que saem do andar: a pessoa só entra pela borda de partida (as
+ *   outras viram parede: laterais e a ponta de cima, que fica no alto);
+ * - escadas que chegam no andar: guarda-corpo em volta do buraco, menos na chegada.
+ */
+export function obstaculosDeEscadasNoAndar({ saem, chegam }, { cx, cz }) {
+  const paraCena = (s) => [s[0] / 100 - cx, s[1] / 100 - cz, s[2] / 100 - cx, s[3] / 100 - cz];
+  return [
+    ...saem.flatMap((e) => e.geo.bordas.filter((b) => !b.abertaEmbaixo).map((b) => ({ seg: paraCena(b.seg), meia: 0.03 }))),
+    ...chegam.flatMap((e) => e.geo.bordas.filter((b) => !b.abertaEmCima).map((b) => ({ seg: paraCena(b.seg), meia: 0.03 }))),
+  ];
+}
+
+/** Obstáculos de quem está na escada: as bordas fechadas e, na caracol, o poste. */
+export function obstaculosDaEscada(e, { cx, cz }) {
+  const paraCena = (s) => [s[0] / 100 - cx, s[1] / 100 - cz, s[2] / 100 - cx, s[3] / 100 - cz];
+  const lista = e.geo.bordas
+    .filter((b) => !b.abertaEmbaixo && !b.abertaEmCima)
+    .map((b) => ({ seg: paraCena(b.seg), meia: 0.03 }));
+  if (e.tipo === 'caracol') {
+    const [x, y] = e.geo.centro;
+    lista.push({ seg: paraCena([x, y, x, y]), meia: e.geo.raioPoste / 100 });
+  }
+  return lista;
+}
+
 export function colide(x, z, raio, obstaculos) {
   return obstaculos.some((o) => distanciaAoSegmento(x, z, o.seg) < raio + o.meia);
 }

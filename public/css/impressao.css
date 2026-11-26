@@ -4,21 +4,25 @@
 
 /* Janela de opções */
 .dialogo {
-  width: min(440px, calc(100vw - 32px));
+  width: min(480px, calc(100vw - 32px));
   box-sizing: border-box;
   background: var(--surface);
   color: var(--fg);
-  border: 1px solid var(--line-strong);
-  border-radius: 16px;
-  padding: 20px;
+  border: 0;
+  border-radius: var(--r-xl);
+  padding: var(--s5);
+  box-shadow: var(--shadow-3);
 }
-.dialogo::backdrop { background: rgba(4, 6, 11, .7); backdrop-filter: blur(2px); }
-.dialogo h2 { margin: 0 0 14px; font-family: var(--f-display); font-weight: 700; font-size: 20px; }
-.dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.dialogo-campos .ed-campo:first-child { grid-column: 1 / -1; }
-.dialogo-resumo { margin: 14px 0 0; font-family: var(--f-mono); font-size: 13px; color: var(--ok); }
+.dialogo::backdrop { background: rgba(15, 34, 51, .45); backdrop-filter: blur(2px); }
+.dialogo h2 { margin: 0 0 var(--s5); font-family: var(--f-display); font-weight: 600; font-size: var(--t-lg); line-height: 1.15; color: var(--secondary); }
+.dialogo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s3); }
+.dialogo-campos .ed-campo:first-child,
+.dialogo-campos .ed-campo.inteiro { grid-column: 1 / -1; }
+.dialogo-resumo { margin: var(--s4) 0 0; font-family: var(--f-mono); font-size: var(--t-sm); color: var(--ok); }
 .dialogo-resumo.erro { color: var(--danger); }
-.dialogo-nota { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
+.dialogo-nota { margin: var(--s3) 0 0; font-size: var(--t-sm); color: var(--muted); }
+/* Ação principal à direita, como de costume (a ordem no HTML já segue isso) */
+.dialogo .ed-acoes { justify-content: flex-end; margin-top: var(--s5); }
 
 /* A folha só existe na impressão */
 #impressao { display: none; }
@@ -29,33 +33,41 @@
   body > *:not(#impressao) { display: none !important; }
 
   #impressao {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4mm;
-    break-inside: avoid;
-    color: #111;
+    display: block;
+    color: #0F2233;
     font-family: var(--f-body);
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
 
-    /* Paleta para papel: fundo branco, paredes pretas, sem gastar tinta à toa */
-    --fg: #111;
-    --muted: #555;
-    --accent: #1f4fbf;
-    --wait: #9a6200;
-    --wall: #111;
-    --rail: #444;
+    /* Paleta para papel: fundo branco, paredes em petróleo, tons claros da paleta */
+    --fg: #0F2233;
+    --muted: #44566A;
+    --accent: #E4653C;
+    --accent-ink: #9A3814;
+    --secondary: #1B4E77;
+    --glass: #7FA3BF;
+    --wait: #9A3814;
+    --wall: #1B4E77;
+    --rail: #4F7698;
     --bg: #fff;
     --surface-2: #fff;
-    --line-strong: #9aa3b2;
+    --line-strong: #6F7E89;
     --room-interno: #fff;
-    --room-circulacao: #f0f2f6;
-    --room-sacada: #f7f7f7;
+    --room-circulacao: #F3EEE6;
+    --room-sacada: #EEF2F5;
     --room-sel: #fff;
   }
 
-  #impressao { box-sizing: border-box; }
+  /* Uma folha por andar: planta centralizada e carimbo no pé de cada página */
+  #impressao .imp-folha {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4mm;
+    box-sizing: border-box;
+    break-inside: avoid;
+  }
+  #impressao .imp-folha + .imp-folha { break-before: page; }
   #impressao .imp-planta { display: block; margin: auto 0; } /* centraliza no espaço acima do carimbo */
   #impressao .cam-grade,
   #impressao .room .anel { display: none; }
@@ -64,7 +76,8 @@
   /* Camadas desligadas em "Mostrar" também saem da impressão */
   #impressao .sem-nomes .cam-nomes,
   #impressao .sem-cotas .cam-cotas,
-  #impressao .sem-portas .cam-portas { display: none; }
+  #impressao .sem-portas .cam-portas,
+  #impressao .sem-fantasma .cam-fantasma { display: none; }
 
   /* Carimbo: nome, barra de escala e informações */
   .imp-carimbo {
@@ -74,14 +87,14 @@
     justify-content: space-between;
     align-items: flex-end;
     gap: 6mm;
-    border-top: .3mm solid #111;
+    border-top: .3mm solid #1B4E77;
     padding-top: 2mm;
     font-size: 9pt;
   }
   .imp-carimbo > div { display: flex; flex-direction: column; gap: 1mm; }
   .imp-titulo strong { font-family: var(--f-display); font-size: 13pt; }
   .imp-titulo span,
-  .imp-info span { color: #444; }
+  .imp-info span { color: #44566A; }
   .imp-escala { align-items: center; }
   .imp-escala span { font-family: var(--f-mono); font-size: 8pt; }
   .imp-barra text { font-family: var(--f-mono); }

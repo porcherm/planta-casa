@@ -15,6 +15,9 @@ import { iniciarModelo3D } from './components/modelo3d/index.js';
 import { iniciarPasseio } from './components/passeio/index.js';
 import { iniciarEditor } from './components/editor/index.js';
 import { iniciarAbas } from './components/abas.js';
+import { iniciarSeletorDeAndar } from './components/seletor-andar.js';
+import { iniciarCorte } from './components/corte/index.js';
+import { iniciarFotosIA } from './components/fotos-ia/index.js';
 import { mostrarErroDeDados } from './components/erro.js';
 
 async function carregarDados() {
@@ -36,12 +39,24 @@ if (!resultado.ok) {
   const store = criarStore(resultado.data, resultado.data.comodoInicial);
   renderizarCabecalho(store.dados);
   store.observarDados(renderizarCabecalho);
+  iniciarSeletorDeAndar(store);
   iniciarPlanta2D(store);
   iniciarImpressao(store);
   iniciarPainel(store);
-  iniciarAbas({
+  const editor = iniciarEditor(store, resultado.bruto);
+  const abas = iniciarAbas({
     modelo3d: iniciarModelo3D(store),
     passeio: iniciarPasseio(store),
-    editor: iniciarEditor(store, resultado.bruto),
+    editor,
+    corte: iniciarCorte(store),
   });
+  iniciarFotosIA({ store, editor, abas });
+
+  // Atalhos vindos da página inicial que abrem uma janela em vez de uma aba
+  const ATALHOS = { '#fotos': 'ia-abrir', '#imprimir': 'imprimir-btn' };
+  const botao = ATALHOS[location.hash];
+  if (botao) {
+    history.replaceState(null, '', '#2d');
+    document.getElementById(botao).click();
+  }
 }

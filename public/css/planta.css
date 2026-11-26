@@ -20,7 +20,8 @@
 #planta.sem-nomes .cam-nomes,
 #planta.sem-cotas .cam-cotas,
 #planta.sem-portas .cam-portas,
-#planta.sem-grade .cam-grade { display: none; }
+#planta.sem-grade .cam-grade,
+#planta.sem-fantasma .cam-fantasma { display: none; }
 
 /* Grade de fundo */
 .g-fina { stroke: var(--grid); stroke-width: 1; fill: none; }
@@ -35,7 +36,7 @@
 .room .piso.circulacao { fill: var(--room-circulacao); }
 .room .piso.sacada { fill: var(--room-sacada); }
 .room .piso.indefinido { fill: url(#hachura); }
-.room:hover .piso { fill: var(--surface-2); }
+.room:hover .piso { fill: var(--room-hover); }
 .room.is-sel .piso { fill: var(--room-sel); }
 .room .anel {
   fill: none;
@@ -51,6 +52,35 @@
 /* Paredes e guarda-corpos */
 .parede { fill: none; stroke: var(--wall); stroke-width: 12; stroke-linecap: square; pointer-events: none; }
 .guarda { fill: none; stroke: var(--rail); stroke-width: 3; stroke-dasharray: 10 5; pointer-events: none; }
+/* Escadas: degraus em traço fino, seta do caminho em coral escuro (texto ≥ 4,5:1) */
+.escada-area { fill: var(--room-circulacao); stroke: var(--wall); stroke-width: 2; }
+.escada.desce .escada-area { fill: var(--surface-sunken); }
+.degrau { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.degrau.oculto { stroke-dasharray: 6 5; opacity: .55; }
+.escada-poste { fill: var(--muted); }
+.escada-corte { stroke: var(--fg); stroke-width: 3; }
+.escada-linha { fill: none; stroke: var(--accent-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.escada-seta,
+.escada-inicio { fill: var(--accent-ink); }
+.escada-txt { font-family: var(--f-mono); font-size: 15px; font-weight: 500; letter-spacing: .08em; fill: var(--accent-ink); text-anchor: middle; }
+.escada-guarda { stroke: var(--rail); stroke-width: 4; stroke-dasharray: 10 5; }
+.escada:focus { outline: none; }
+.escada:focus-visible .escada-area { stroke: var(--secondary); stroke-width: 5; }
+.escada.is-sel .escada-area { fill: var(--room-sel); stroke: var(--accent); stroke-width: 5; }
+
+/* Vazios (pé-direito duplo): fundo do canvas, "X" fino e guarda-corpo tracejado */
+.vazio-area { fill: var(--canvas); stroke: none; }
+.vazio-x { stroke: var(--line-strong); stroke-width: 1.5; }
+.vazio-guarda { stroke: var(--rail); stroke-width: 4; stroke-dasharray: 10 5; }
+.vazio-etiqueta { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
+.vazio-txt { font-family: var(--f-mono); font-size: 14px; font-weight: 500; letter-spacing: .1em; fill: var(--muted); text-anchor: middle; }
+.vazio-projecao polygon { fill: none; stroke: var(--muted); stroke-width: 2; stroke-dasharray: 3 7; pointer-events: none; }
+.vazio-proj-txt { font-family: var(--f-mono); font-size: 13px; fill: var(--muted); text-anchor: middle; pointer-events: none; }
+.vazio:focus { outline: none; }
+.vazio.is-sel .vazio-area { fill: var(--room-sel); stroke: var(--accent); stroke-width: 5; }
+
+/* Paredes do andar de baixo, para alinhar: finas, tracejadas e discretas */
+.fantasma { fill: none; stroke: var(--glass); stroke-width: 4; stroke-dasharray: 16 10; stroke-linecap: butt; opacity: .9; pointer-events: none; }
 
 /* Portas */
 .porta-linha { stroke: var(--muted); stroke-width: 2; pointer-events: none; }
@@ -60,20 +90,20 @@
 .porta-ent { stroke: var(--accent); stroke-width: 3; pointer-events: none; }
 .porta-batente { stroke: var(--accent); stroke-width: 4; pointer-events: none; }
 .piso-vao { fill: var(--room-circulacao); pointer-events: none; }
-.ent-txt { fill: var(--accent); font-family: var(--f-mono); font-size: 17px; letter-spacing: .12em; text-anchor: middle; pointer-events: none; }
+.ent-txt { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 17px; letter-spacing: .12em; text-anchor: middle; pointer-events: none; }
 
 /* Janelas */
 .jan-moldura { stroke: var(--wall); stroke-width: 2.5; pointer-events: none; }
-.jan-vidro { stroke: var(--accent); stroke-width: 3; pointer-events: none; }
+.jan-vidro { stroke: var(--glass); stroke-width: 3; pointer-events: none; }
 
 /* Rótulos dos cômodos */
 .lbl { pointer-events: none; text-anchor: middle; }
-.lbl-nome { fill: var(--fg); font-family: var(--f-display); font-weight: 700; font-size: 27px; }
+.lbl-nome { fill: var(--fg); font-family: var(--f-display); font-weight: 600; font-size: 27px; }
 .lbl-nome.sm { font-size: 19px; }
-.lbl-nome.ext { fill: var(--muted); font-weight: 600; }
+.lbl-nome.ext { fill: var(--muted); }
 .lbl-med { fill: var(--muted); font-family: var(--f-mono); font-size: 18px; }
-.lbl-area { fill: var(--accent); font-family: var(--f-mono); font-size: 18px; }
-.lbl-q { fill: var(--wait); font-family: var(--f-display); font-weight: 700; font-size: 30px; }
+.lbl-area { fill: var(--secondary); font-family: var(--f-mono); font-size: 18px; }
+.lbl-q { fill: var(--wait); font-family: var(--f-display); font-weight: 600; font-size: 30px; }
 
 /* Cotas gerais */
 .cota { stroke: var(--muted); stroke-width: 1.5; }
@@ -81,13 +111,13 @@
 
 /* Medidas de cada parede do cômodo selecionado */
 .med-linha { stroke: var(--accent); stroke-width: 1.5; pointer-events: none; }
-.med-txt { fill: var(--accent); font-family: var(--f-mono); font-size: 15px; font-weight: 500; text-anchor: middle; pointer-events: none; }
+.med-txt { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 15px; font-weight: 500; text-anchor: middle; pointer-events: none; }
 .med-txt.ab { fill: var(--muted); }
 
 /* Régua */
 .regua-linha { stroke: var(--wait); stroke-width: 3; stroke-linecap: round; pointer-events: none; }
 .regua-pt { fill: var(--wait); pointer-events: none; }
-.regua-caixa { fill: var(--bg); stroke: var(--wait); stroke-width: 1.5; pointer-events: none; }
+.regua-caixa { fill: var(--surface-2); stroke: var(--wait); stroke-width: 1.5; pointer-events: none; }
 .regua-txt { fill: var(--wait); font-family: var(--f-mono); font-size: 18px; font-weight: 500; text-anchor: middle; pointer-events: none; }
 
 /* Modelo 3D */

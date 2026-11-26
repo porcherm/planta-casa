@@ -7,15 +7,20 @@
  */
 import { $ } from '../utils/dom.js';
 
-export function iniciarAbas({ modelo3d, passeio, editor }) {
+export function iniciarAbas({ modelo3d, passeio, editor, corte }) {
   const ABAS = {
     '2d': { botao: 'tab-2d', mostrar: ['view-2d', 'bar-2d', 'painel-detalhe'] },
     '3d': { botao: 'tab-3d', mostrar: ['view-3d', 'painel-detalhe'], controlador: modelo3d },
     passeio: { botao: 'tab-passeio', mostrar: ['view-passeio', 'painel-detalhe'], controlador: passeio },
     editor: { botao: 'tab-editor', mostrar: ['view-editor', 'bar-editor', 'painel-editor'], controlador: editor },
+    corte: { botao: 'tab-corte', mostrar: ['view-corte', 'bar-corte', 'painel-detalhe'], controlador: corte },
   };
   const todosOsElementos = [...new Set(Object.values(ABAS).flatMap((a) => a.mostrar))];
   let atual = '2d';
+
+  // Endereço de cada aba (app.html#editor etc.), usado pelos links da página inicial
+  const HASH_DA_ABA = { '2d': '2d', '3d': '3d', passeio: 'caminhar', editor: 'editor', corte: 'corte' };
+  const ABA_DO_HASH = Object.fromEntries(Object.entries(HASH_DA_ABA).map(([aba, hash]) => [hash, aba]));
 
   function mostrar(nome) {
     const aba = ABAS[nome];
@@ -28,6 +33,14 @@ export function iniciarAbas({ modelo3d, passeio, editor }) {
 
     atual = nome;
     aba.controlador?.ativar();
+    // replaceState não dispara hashchange nem cria entradas no histórico
+    history.replaceState(null, '', `#${HASH_DA_ABA[nome]}`);
+  }
+
+  /** Abre a aba indicada no endereço, se houver uma. */
+  function seguirHash() {
+    const nome = ABA_DO_HASH[location.hash.slice(1)];
+    if (nome && nome !== atual) mostrar(nome);
   }
 
   for (const [nome, { botao, controlador }] of Object.entries(ABAS)) {
@@ -39,4 +52,14 @@ export function iniciarAbas({ modelo3d, passeio, editor }) {
       el.addEventListener('focus', controlador.preparar, { once: true });
     }
   }
+
+  window.addEventListener('hashchange', seguirHash);
+  seguirHash();
+
+  return {
+    /** Abre uma aba por código (ex.: depois de gerar a planta por fotos). */
+    mostrar(nome) {
+      if (nome !== atual && ABAS[nome]) mostrar(nome);
+    },
+  };
 }

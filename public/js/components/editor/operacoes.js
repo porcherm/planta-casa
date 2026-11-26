@@ -229,11 +229,14 @@ export function criarAbertura(tipo, { L, ao }) {
     : { nome: 'Porta', tipo: 'porta', ...segmento, lado: L.dentro, dobradica: 'inicio' };
 }
 
-/** Id único a partir de um nome (ex.: "Quarto 2" → "quarto-2"). */
+/**
+ * Id único a partir de um nome (ex.: "Quarto 2" → "quarto-2").
+ * Único na casa inteira: a vista de um andar traz `comodosDaCasa` com os de todos os andares.
+ */
 export function gerarId(dados, nome) {
   const base = String(nome).normalize('NFD').replace(/[̀-ͯ]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'comodo';
-  const usados = new Set(dados.comodos.map((c) => c.id));
+  const usados = new Set((dados.comodosDaCasa || dados.comodos).map((c) => c.id));
   let id = base, n = 2;
   while (usados.has(id)) id = `${base}-${n++}`;
   return id;
@@ -298,8 +301,10 @@ export function removerComodo(dados, indice) {
   dados.comodos.splice(indice, 1);
   const outras = dados.comodos.flatMap((c) => aberturasAnexas(dados, c).map((a) => `${a.lista}:${a.indice}`));
   const remover = anexas.filter((a) => !outras.includes(`${a.lista}:${a.indice}`));
+  // Remove no lugar (de trás para frente): `dados` pode ser a vista de um andar,
+  // e trocar a lista por outra deixaria a casa com a lista antiga
   for (const lista of LISTAS) {
-    const indices = new Set(remover.filter((a) => a.lista === lista).map((a) => a.indice));
-    if (dados[lista]) dados[lista] = dados[lista].filter((_, i) => !indices.has(i));
+    const indices = remover.filter((a) => a.lista === lista).map((a) => a.indice).sort((p, q) => q - p);
+    for (const i of indices) dados[lista]?.splice(i, 1);
   }
 }

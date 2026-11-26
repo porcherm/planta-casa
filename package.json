@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx --yes serve public -l 5000",
+    "test": "node --test \"tests/**/*.test.js\"",
     "deploy": "firebase deploy --only hosting"
   },
   "keywords": ["planta-baixa", "floor-plan", "threejs", "svg", "vanilla-js", "ai-generated"],

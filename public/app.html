@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Planta do apartamento com medidas por cômodo e modelo 3D.">
+  <meta name="theme-color" content="#1B4E77">
+  <title>Roomprint</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/planta.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/passeio.css">
+  <link rel="stylesheet" href="css/corte.css">
+  <link rel="stylesheet" href="css/impressao.css">
+  <link rel="stylesheet" href="css/fotos-ia.css">
+
+  <!-- three.js é baixado só ao abrir uma aba 3D (ver js/components/modelo3d/carregar-three.js);
+       o preconnect só adianta a conexão com o CDN, sem baixar nada -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <!-- Aplicação -->
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#palco">Pular para a planta</a>
+
+<header class="top">
+  <div class="container top-inner">
+    <a class="brand" href="./" title="Voltar para a página inicial">
+      <svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="2" width="22" height="22" rx="1" fill="none" stroke="#E1D7C8" stroke-width="2.2"/><path d="M2 13h11V2M13 13v11M13 18h11" fill="none" stroke="#E4653C" stroke-width="2.2"/></svg>
+      <span>Roomprint</span>
+    </a>
+    <span class="pill" id="badge"><span class="dot" id="badge-dot"></span><span id="badge-txt">Rascunho do desenho</span></span>
+  </div>
+</header>
+
+<div class="container">
+  <section class="intro">
+    <div class="intro-texto">
+      <span class="eyebrow" id="nome-ape">Apartamento</span>
+      <h1 id="titulo">Minha casa, cômodo por cômodo</h1>
+    </div>
+    <button type="button" class="btn primary" id="ia-abrir" title="Envie de 1 a 5 fotos e a IA monta a planta 2D e 3D">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5h2.5L6 3.5h4l1.5 2H14v7.5H2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8" cy="9" r="2.3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      <span>Planta por fotos (IA)</span>
+    </button>
+  </section>
+
+  <!-- Aparece só quando os dados da planta têm algum erro -->
+  <div class="card erro-dados" id="erro-dados" role="alert" hidden>
+    <span class="eyebrow">Erro nos dados da planta</span>
+    <p id="erro-dados-txt"></p>
+    <p class="erro-dica">Confira o arquivo <code>public/js/constants/apartamento.js</code>. Para mais detalhes, abra o console do navegador (F12).</p>
+  </div>
+
+  <!-- Alterações recuperadas do salvamento automático (aparece em qualquer aba) -->
+  <div class="ed-rascunho" id="editor-rascunho" role="status" hidden>
+    <span id="editor-rascunho-txt"></span>
+    <div class="ed-acoes">
+      <button type="button" class="btn sm primary" id="ed-rascunho-restaurar"></button>
+      <button type="button" class="btn sm" id="ed-rascunho-descartar"></button>
+    </div>
+  </div>
+
+  <main class="workspace">
+    <!-- Palco: planta 2D, modelo 3D, passeio ou editor -->
+    <section class="stage" id="palco" tabindex="-1" aria-label="Visualização da planta">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Tipo de visualização">
+          <button type="button" id="tab-2d" aria-pressed="true">Planta 2D</button>
+          <button type="button" id="tab-3d" aria-pressed="false">Modelo 3D</button>
+          <button type="button" id="tab-passeio" aria-pressed="false">Caminhar</button>
+          <button type="button" id="tab-editor" aria-pressed="false">Editor</button>
+          <button type="button" id="tab-corte" aria-pressed="false">Corte</button>
+        </div>
+        <!-- Andar visível (só aparece em casas com mais de um andar) -->
+        <div class="andares" id="seletor-andar" role="group" aria-label="Andar visível" hidden>
+          <span class="grp-t">Andar</span>
+          <div class="andares-lista" id="seletor-andar-lista"></div>
+        </div>
+        <div class="legend" aria-label="Legenda">
+          <span><i class="sw interno"></i>Cômodo</span>
+          <span><i class="sw circulacao"></i>Circulação</span>
+          <span><i class="sw sacada"></i>Sacada</span>
+          <span><i class="sw janela"></i>Janela</span>
+        </div>
+      </div>
+
+      <div class="subbar" id="bar-2d">
+        <div class="grp">
+          <button type="button" class="btn sm" id="regua-btn" aria-pressed="false">Régua</button>
+          <button type="button" class="btn sm ico" id="zoom-menos" aria-label="Diminuir zoom">−</button>
+          <button type="button" class="btn sm ico" id="zoom-mais" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="btn sm" id="zoom-ajustar">Ajustar</button>
+        </div>
+        <div class="grp" role="group" aria-label="Camadas da planta">
+          <span class="grp-t">Mostrar</span>
+          <button type="button" class="chip-t" data-camada="nomes" aria-pressed="true">Nomes</button>
+          <button type="button" class="chip-t" data-camada="cotas" aria-pressed="true">Medidas</button>
+          <button type="button" class="chip-t" data-camada="portas" aria-pressed="true">Portas</button>
+          <button type="button" class="chip-t" data-camada="grade" aria-pressed="true">Grade</button>
+          <button type="button" class="chip-t" data-camada="fantasma" id="chip-fantasma" aria-pressed="false" title="Mostra as paredes do andar de baixo, tracejadas, para alinhar" hidden>Andar de baixo</button>
+        </div>
+      </div>
+
+      <div class="view" id="view-2d">
+        <svg id="planta" class="sem-fantasma" role="img" aria-label="Planta baixa do apartamento"></svg>
+        <div class="overlay ov-top">
+          <span class="tag mono" id="coord-2d" hidden></span>
+          <div class="ov-acoes">
+            <button type="button" class="btn sm btn-exportar" id="imprimir-btn" title="Imprimir ou salvar em PDF, em escala">
+              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4 9.5h8V14H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              <span>Imprimir</span>
+            </button>
+            <button type="button" class="btn sm btn-exportar" id="baixar-png" title="Baixar a planta inteira como imagem PNG">
+              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Baixar PNG</span>
+            </button>
+          </div>
+        </div>
+        <div class="overlay ov-bottom"><span class="tag" id="tag-2d">Toque num cômodo para ver as medidas</span></div>
+      </div>
+
+      <div class="view" id="view-3d" hidden>
+        <div id="view3d"></div>
+        <div class="overlay ov-top">
+          <span class="tag">Selecionado: <b id="sel-3d">—</b></span>
+          <span class="tag">Arraste para girar · pinça ou roda para zoom</span>
+        </div>
+        <div class="overlay ov-bottom">
+          <button type="button" class="btn" id="cam-iso">Vista 3D</button>
+          <button type="button" class="btn" id="cam-top">Vista de cima</button>
+          <button type="button" class="btn" id="paredes" aria-pressed="false">Paredes baixas</button>
+          <button type="button" class="btn" id="portas-3d" aria-pressed="false">Ocultar portas</button>
+          <button type="button" class="btn" id="corte-andar" aria-pressed="false" title="Esconde os andares acima do andar escolhido, para ver por dentro" hidden>Só até este andar</button>
+          <button type="button" class="btn" id="terreno-3d" aria-pressed="false" title="Esconde o terreno para ver o subsolo por fora" hidden>Ocultar terreno</button>
+          <button type="button" class="btn" id="telhado-3d" aria-pressed="false" title="Mostra o telhado (fica escondido para dar para ver por dentro)" hidden>Mostrar telhado</button>
+          <button type="button" class="btn" id="baixar-glb" title="Baixa o modelo 3D (.glb) para abrir no Blender, SketchUp ou em visualizadores de realidade aumentada">Baixar 3D (.glb)</button>
+        </div>
+        <div class="fallback" id="carregando-3d" hidden>Carregando o 3D…</div>
+        <div class="fallback" id="fallback-3d" hidden>O modelo 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
+      </div>
+
+      <!-- Caminhar: passeio em primeira pessoa -->
+      <div class="view" id="view-passeio" hidden>
+        <div id="passeio-host"></div>
+        <div class="overlay ov-top">
+          <span class="tag">Você está em: <b id="passeio-local">—</b></span>
+          <span class="tag passeio-ajuda">WASD ou setas para andar · Shift corre · arraste para olhar</span>
+        </div>
+        <div class="overlay ov-bottom passeio-base">
+          <div class="passeio-acoes">
+            <button type="button" class="btn" id="passeio-reiniciar"><span>Voltar ao centro<span class="so-largo"> do cômodo</span></span></button>
+            <div class="passeio-andar" id="passeio-andar" hidden>
+              <button type="button" class="btn" id="passeio-subir" title="Subir um andar (Page Up)">▲ Subir andar</button>
+              <button type="button" class="btn" id="passeio-descer" title="Descer um andar (Page Down)">▼ Descer andar</button>
+            </div>
+          </div>
+          <div class="passeio-setas" aria-label="Controles de movimento">
+            <button type="button" class="btn ico" data-passo="KeyW" aria-label="Andar para frente">▲</button>
+            <button type="button" class="btn ico" data-passo="KeyA" aria-label="Andar para a esquerda">◀</button>
+            <button type="button" class="btn ico" data-passo="KeyS" aria-label="Andar para trás">▼</button>
+            <button type="button" class="btn ico" data-passo="KeyD" aria-label="Andar para a direita">▶</button>
+          </div>
+        </div>
+        <div class="fallback" id="carregando-passeio" hidden>Carregando o 3D…</div>
+        <div class="fallback" id="fallback-passeio" hidden>O passeio em 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
+      </div>
+
+      <!-- Corte: vista em corte gerada a partir dos dados -->
+      <div class="subbar" id="bar-corte" hidden>
+        <div class="grp" role="group" aria-label="Direção do corte">
+          <span class="grp-t">Corte</span>
+          <button type="button" class="chip-t" id="corte-h" aria-pressed="true" title="Linha de corte horizontal na planta, vista de baixo">AA · horizontal</button>
+          <button type="button" class="chip-t" id="corte-v" aria-pressed="false" title="Linha de corte vertical na planta, vista da esquerda">BB · vertical</button>
+        </div>
+        <div class="grp corte-posicao">
+          <label for="corte-pos" class="grp-t">Posição</label>
+          <input type="range" id="corte-pos" min="0" max="100" step="5" value="50">
+          <output id="corte-pos-txt" class="mono" for="corte-pos"></output>
+        </div>
+        <div class="grp">
+          <button type="button" class="btn sm ico" id="corte-zoom-menos" aria-label="Diminuir zoom">−</button>
+          <button type="button" class="btn sm ico" id="corte-zoom-mais" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="btn sm" id="corte-ajustar">Ajustar</button>
+          <button type="button" class="btn sm" id="corte-png">Baixar PNG</button>
+        </div>
+      </div>
+
+      <div class="view" id="view-corte" hidden>
+        <svg id="corte-svg" role="img" aria-label="Corte da casa"></svg>
+        <!-- Onde passa a linha do corte, na planta -->
+        <svg id="corte-mapa" class="corte-mapa" aria-hidden="true"></svg>
+        <div class="overlay ov-bottom"><span class="tag" id="corte-dica"></span></div>
+      </div>
+
+      <!-- Editor visual -->
+      <div class="subbar" id="bar-editor" hidden>
+        <div class="grp" role="group" aria-label="Adicionar">
+          <span class="grp-t">Adicionar</span>
+          <button type="button" class="btn sm" id="ed-add-comodo">+ Cômodo</button>
+          <button type="button" class="btn sm" id="ed-add-sacada">+ Sacada</button>
+          <button type="button" class="btn sm" id="ed-add-porta" aria-pressed="false">+ Porta</button>
+          <button type="button" class="btn sm" id="ed-add-janela" aria-pressed="false">+ Janela</button>
+          <button type="button" class="btn sm" id="ed-add-escada" title="Escada deste andar para o andar de cima">+ Escada</button>
+          <button type="button" class="btn sm" id="ed-add-vazio" title="Recorte no piso deste andar: o cômodo de baixo ganha pé-direito duplo">+ Vazio</button>
+        </div>
+        <div class="grp" role="group" aria-label="Andares">
+          <span class="grp-t">Andar</span>
+          <button type="button" class="btn sm" id="ed-andar-acima" title="Cria um andar acima deste, já com o contorno dele">+ Acima</button>
+          <button type="button" class="btn sm" id="ed-andar-abaixo" title="Cria um andar abaixo deste (subsolo), já com o contorno dele">+ Abaixo</button>
+          <button type="button" class="btn sm" id="ed-andar-ajustes" title="Nome, pé-direito, laje e altura deste andar">Ajustes</button>
+          <button type="button" class="btn sm" id="ed-andar-excluir" disabled>Excluir</button>
+        </div>
+        <div class="grp">
+          <button type="button" class="btn sm" id="ed-desfazer" title="Desfazer (Ctrl+Z)" disabled>Desfazer</button>
+          <button type="button" class="btn sm" id="ed-refazer" title="Refazer (Ctrl+Y)" disabled>Refazer</button>
+          <button type="button" class="btn sm ico" id="ed-zoom-menos" aria-label="Diminuir zoom">−</button>
+          <button type="button" class="btn sm ico" id="ed-zoom-mais" aria-label="Aumentar zoom">+</button>
+          <button type="button" class="btn sm" id="ed-zoom-ajustar">Ajustar</button>
+        </div>
+      </div>
+
+      <div class="view" id="view-editor" hidden>
+        <svg id="editor-svg" role="application" aria-label="Editor da planta"></svg>
+        <div class="overlay ov-top"><span class="tag mono" id="editor-coord" hidden></span></div>
+        <div class="overlay ov-bottom"><span class="tag" id="editor-dica"></span></div>
+      </div>
+    </section>
+
+    <!-- Painel lateral: cômodo selecionado (ou editor) + lista -->
+    <aside class="panel">
+      <div class="card ed-painel" id="painel-editor" hidden>
+        <div class="ed-avisos" id="editor-avisos" role="status" hidden></div>
+        <div id="editor-form"></div>
+        <div class="ed-salvar">
+          <span class="eyebrow">Salvar</span>
+          <div class="ed-acoes">
+            <button type="button" class="btn sm primary" id="ed-baixar">Baixar apartamento.js</button>
+            <button type="button" class="btn sm" id="ed-copiar">Copiar código</button>
+            <button type="button" class="btn sm" id="ed-descartar">Descartar alterações</button>
+          </div>
+          <p class="ed-status" id="editor-status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="card detail" id="painel-detalhe" aria-live="polite">
+        <span class="eyebrow">Cômodo selecionado<span id="d-andar"></span></span>
+        <h2 id="d-nome">—</h2>
+        <span class="chip" id="d-tipo">—</span>
+        <div class="aviso-room" id="d-nota" hidden><span class="dot"></span><span id="d-nota-txt"></span></div>
+        <dl class="medidas">
+          <div><dt id="d-larg-t">Largura</dt><dd id="d-larg">—</dd></div>
+          <div><dt id="d-comp-t">Comprimento</dt><dd id="d-comp">—</dd></div>
+          <div><dt>Área do piso</dt><dd id="d-area">—</dd></div>
+          <div><dt>Perímetro</dt><dd id="d-per">—</dd></div>
+          <div><dt id="d-pe-t">Pé-direito</dt><dd id="d-pe">—</dd></div>
+          <div><dt>Área de paredes</dt><dd id="d-par">—</dd></div>
+        </dl>
+      </div>
+
+      <div class="card rooms">
+        <h3>Cômodos <small id="r-count">0</small></h3>
+        <ul id="lista"></ul>
+        <div class="total">
+          <div><span id="area-total-t">Área interna</span><strong id="area-total">—</strong></div>
+          <div class="sub"><span>Sacadas</span><strong id="area-sacadas">—</strong></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- Opções de impressão em escala -->
+<dialog class="dialogo" id="dialogo-imprimir" aria-labelledby="imp-titulo">
+  <h2 id="imp-titulo">Imprimir em escala</h2>
+  <div class="dialogo-campos">
+    <label class="ed-campo"><span>Escala</span>
+      <select id="imp-escala">
+        <option value="auto" selected>Automática (maior que couber)</option>
+        <option value="50">1:50</option>
+        <option value="75">1:75</option>
+        <option value="100">1:100</option>
+        <option value="125">1:125</option>
+        <option value="150">1:150</option>
+        <option value="200">1:200</option>
+      </select>
+    </label>
+    <label class="ed-campo"><span>Papel</span>
+      <select id="imp-papel">
+        <option value="A4" selected>A4</option>
+        <option value="A3">A3</option>
+      </select>
+    </label>
+    <label class="ed-campo"><span>Orientação</span>
+      <select id="imp-orientacao">
+        <option value="auto" selected>Automática</option>
+        <option value="retrato">Retrato</option>
+        <option value="paisagem">Paisagem</option>
+      </select>
+    </label>
+    <label class="ed-campo inteiro" id="imp-andares-campo" hidden><span>Andares</span>
+      <select id="imp-andares">
+        <option value="atual" selected>Só o andar visível</option>
+        <option value="todos">Todos os andares (uma folha para cada, na mesma escala)</option>
+      </select>
+    </label>
+  </div>
+  <p class="dialogo-resumo" id="imp-resumo" aria-live="polite"></p>
+  <p class="dialogo-nota">Na janela de impressão, deixe a escala em <b>100%</b> (ou "Tamanho real") para as medidas saírem certas. Para gerar um PDF, escolha <b>"Salvar como PDF"</b> como impressora.</p>
+  <div class="ed-acoes">
+    <button type="button" class="btn" id="imp-cancelar">Cancelar</button>
+    <button type="button" class="btn primary" id="imp-confirmar">Imprimir / Salvar PDF</button>
+  </div>
+</dialog>
+
+<!-- Planta por fotos: a IA analisa as fotos e monta a planta -->
+<dialog class="dialogo dialogo-ia" id="dialogo-ia" aria-labelledby="ia-titulo">
+  <h2 id="ia-titulo">Planta por fotos</h2>
+
+  <div id="ia-etapa-envio">
+    <p class="dialogo-nota ia-intro">Envie de 1 a 5 fotos e a IA monta a planta 2D e o modelo 3D, com as medidas estimadas. Funciona melhor com uma foto da planta ou de um croqui com as medidas escritas; com fotos dos cômodos, ela estima pelas portas, pisos e móveis.</p>
+
+    <label class="ia-soltar" id="ia-soltar">
+      <input type="file" id="ia-arquivos" accept="image/*" multiple>
+      <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 15v4h16v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Escolher fotos</b>
+      <small>ou arraste aqui · JPG, PNG ou WebP</small>
+    </label>
+    <ul class="ia-miniaturas" id="ia-miniaturas" aria-label="Fotos escolhidas"></ul>
+    <p class="ia-contador" id="ia-contador">0 de 5 fotos</p>
+
+    <label class="ed-campo"><span>Dicas para a IA <small>(opcional)</small></span>
+      <textarea id="ia-dicas" rows="3" placeholder="Ex.: a sala tem 4 m de largura; pé-direito de 2,60 m; o banheiro fica entre os dois quartos."></textarea>
+    </label>
+
+    <div class="ia-chave">
+      <label class="ed-campo"><span>Chave da API da Anthropic</span>
+        <input type="password" id="ia-chave" autocomplete="off" spellcheck="false" placeholder="sk-ant-…">
+      </label>
+      <label class="ed-check"><input type="checkbox" id="ia-lembrar"> Lembrar neste navegador</label>
+      <p class="dialogo-nota">A chave vai direto do seu navegador para a Anthropic e não passa por nenhum outro servidor. Cada geração é cobrada na sua conta. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Criar uma chave</a></p>
+    </div>
+
+    <label class="ed-campo"><span>Onde colocar a planta gerada</span>
+      <select id="ia-destino">
+        <option value="casa" selected>Substituir a casa inteira</option>
+        <option value="andar">Substituir só o andar visível</option>
+        <option value="acima">Como um novo andar acima do visível</option>
+        <option value="abaixo">Como um novo andar abaixo do visível (subsolo)</option>
+      </select>
+    </label>
+
+    <p class="dialogo-nota">Dá para voltar atrás com "Desfazer" no Editor. Em casas com mais de um andar, gere um andar de cada vez.</p>
+    <p class="dialogo-resumo" id="ia-status" aria-live="polite"></p>
+    <div class="ed-acoes">
+      <button type="button" class="btn" id="ia-fechar">Fechar</button>
+      <button type="button" class="btn primary" id="ia-gerar" disabled>Gerar planta</button>
+    </div>
+  </div>
+
+  <div id="ia-etapa-progresso" class="ia-progresso" hidden>
+    <span class="ia-girando" aria-hidden="true"></span>
+    <p id="ia-fase" aria-live="polite"></p>
+    <p class="dialogo-nota">Isso costuma levar de 1 a 3 minutos · <span id="ia-tempo">0 s</span></p>
+    <div class="ed-acoes">
+      <button type="button" class="btn" id="ia-parar">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="ia-etapa-resultado" hidden>
+    <p class="ia-pronto">Planta pronta!</p>
+    <p class="dialogo-resumo" id="ia-resumo"></p>
+    <span class="eyebrow">Observações da IA</span>
+    <p class="ia-observacoes" id="ia-observacoes"></p>
+    <div class="ia-avisos" id="ia-avisos" hidden>
+      <span class="eyebrow">Para conferir</span>
+      <ul id="ia-avisos-lista"></ul>
+    </div>
+    <p class="dialogo-nota">As medidas são estimativas: confira com uma trena e ajuste no Editor. Para guardar a planta, use <b>Editor → Baixar apartamento.js</b> (um rascunho já fica salvo neste navegador).</p>
+    <div class="ed-acoes">
+      <button type="button" class="btn" id="ia-nova">Gerar outra</button>
+      <button type="button" class="btn" id="ia-ver-editor">Ajustar no Editor</button>
+      <button type="button" class="btn" id="ia-ver-3d">Ver em 3D</button>
+      <button type="button" class="btn primary" id="ia-ver-2d">Ver planta 2D</button>
+    </div>
+  </div>
+</dialog>
+</body>
+</html>

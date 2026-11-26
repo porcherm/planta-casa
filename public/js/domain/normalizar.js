@@ -1,4 +1,8 @@
 import { TIPOS_COMODO, TIPO_COMODO_PADRAO, APELIDOS_TIPO_COMODO, TIPOS_PORTA, ESTADOS, PADROES } from '../constants/tipos.js';
+import { paraFormatoComAndares } from './andares.js';
+import { normalizarEscadas } from './escadas.js';
+import { normalizarTerreno } from './terreno.js';
+import { normalizarTelhado } from './telhado.js';
 
 const ehNumero = (v) => typeof v === 'number' && Number.isFinite(v);
 const temCoordenadas = (o) => o && ['x1', 'y1', 'x2', 'y2'].every((k) => ehNumero(o[k]));
@@ -20,26 +24,123 @@ export function normalizarDados(bruto) {
   }
 }
 
+/**
+ * Resultado (casa normalizada):
+ * - dados gerais: nome, titulo, estado, comodoInicial, parede, alturaPorta, peDireito (padrão dos andares);
+ * - andares: cada um no formato de uma planta de um andar só, mais id, nome, cota, laje e referencia;
+ * - comodos: todos os cômodos da casa (cada um sabe o seu `andar`), para listas e seleção;
+ * - escadas: ligações entre andares, já com a geometria calculada (ver escadas.js).
+ */
 function normalizar(d) {
   if (!d || typeof d !== 'object') falhar('O texto precisa ser um objeto JSON com a lista "comodos".');
-  if (!Array.isArray(d.comodos) || !d.comodos.length) falhar('Faltou a lista "comodos" com pelo menos um cômodo.');
+  if (Array.isArray(d.andares) && d.comodos !== undefined) {
+    falhar('Use "comodos" dentro de cada andar (em "andares"), e não no nível da casa.');
+  }
+  if (!Array.isArray(d.andares) && (!Array.isArray(d.comodos) || !d.comodos.length)) {
+    falhar('Faltou a lista "comodos" com pelo menos um cômodo.');
+  }
+  if (Array.isArray(d.andares) && !d.andares.length) falhar('A lista "andares" precisa ter pelo menos um andar.');
+
+  const b = paraFormatoComAndares(d);
+  const geral = {
+    parede: ehNumero(b.parede) && b.parede >= 0 ? b.parede : 0,
+    alturaPorta: ehNumero(b.alturaPorta) && b.alturaPorta > 0 ? b.alturaPorta : PADROES.alturaPorta,
+    peDireito: Number(b.peDireito) > 0 ? Number(b.peDireito) : PADROES.peDireito,
+  };
+
+  const idsComodos = new Set();
+  const andares = normalizarAndares(b.andares, geral, idsComodos);
 
   return {
-    nome: String(d.nome || 'Minha casa'),
-    titulo: String(d.titulo || 'Minha casa, cômodo por cômodo'),
-    comodoInicial: typeof d.comodoInicial === 'string' ? d.comodoInicial : '',
-    estado: ESTADOS[d.estado] ? d.estado : (d.exemplo === true ? 'exemplo' : 'real'),
-    peDireito: Number(d.peDireito) > 0 ? Number(d.peDireito) : PADROES.peDireito,
-    parede: ehNumero(d.parede) && d.parede >= 0 ? d.parede : 0,
-    alturaPorta: ehNumero(d.alturaPorta) && d.alturaPorta > 0 ? d.alturaPorta : PADROES.alturaPorta,
-    comodos: normalizarComodos(d.comodos),
-    portas: (Array.isArray(d.portas) ? d.portas : []).map(normalizarPorta),
-    janelas: (Array.isArray(d.janelas) ? d.janelas : []).map(normalizarJanela),
+    nome: String(b.nome || 'Minha casa'),
+    titulo: String(b.titulo || 'Minha casa, cômodo por cômodo'),
+    comodoInicial: typeof b.comodoInicial === 'string' ? b.comodoInicial : '',
+    estado: ESTADOS[b.estado] ? b.estado : (b.exemplo === true ? 'exemplo' : 'real'),
+    ...geral,
+    andares,
+    comodos: andares.flatMap((a) => a.comodos),
+    escadas: normalizarEscadas(b.escadas, andares, falhar),
+    terreno: normalizarTerreno(b.terreno),
+    telhado: normalizarTelhado(b.telhado),
   };
 }
 
-function normalizarComodos(lista) {
-  const idsUsados = new Set();
+/**
+ * Andares de baixo para cima. A cota (altura do piso, em cm) parte do andar de
+ * referência (cota 0): quem está acima soma pé-direito e laje; quem está abaixo
+ * desconta. `laje` é a espessura da laje que fica embaixo do andar.
+ * Um `cota` numérico no andar sobrescreve a conta (casas com meio-nível).
+ */
+function normalizarAndares(lista, geral, idsComodos) {
+  const idsAndares = new Set();
+  const idsVazios = new Set();
+  const andares = lista.map((a, i) => {
+    const n = i + 1;
+    if (!a || typeof a !== 'object') falhar(`O andar ${n} precisa ser um objeto { nome, comodos, ... }.`);
+    const nome = typeof a.nome === 'string' && a.nome.trim() ? a.nome.trim() : `Andar ${n}`;
+    if (!Array.isArray(a.comodos) || !a.comodos.length) falhar(`O andar "${nome}" precisa de pelo menos um cômodo em "comodos".`);
+
+    let id = String(a.id || `andar-${n}`).replace(/[^a-zA-Z0-9_-]/g, '-');
+    while (idsAndares.has(id)) id += `-${n}`;
+    idsAndares.add(id);
+
+    return {
+      id,
+      nome,
+      referencia: a.referencia === true,
+      cotaInformada: ehNumero(a.cota) ? a.cota : null,
+      laje: ehNumero(a.laje) && a.laje >= 0 ? a.laje : PADROES.laje,
+      peDireito: Number(a.peDireito) > 0 ? Number(a.peDireito) : geral.peDireito,
+      parede: geral.parede,
+      alturaPorta: geral.alturaPorta,
+      comodos: normalizarComodos(a.comodos, idsComodos).map((c) => ({ ...c, andar: id })),
+      portas: (Array.isArray(a.portas) ? a.portas : []).map(normalizarPorta),
+      janelas: (Array.isArray(a.janelas) ? a.janelas : []).map(normalizarJanela),
+      vazios: normalizarVazios(a.vazios, nome, idsVazios),
+    };
+  });
+
+  const marcados = andares.filter((a) => a.referencia);
+  if (marcados.length > 1) falhar(`Só um andar pode ser a referência (cota 0): ${marcados.map((a) => `"${a.nome}"`).join(' e ')}.`);
+  let ref = andares.indexOf(marcados[0]);
+  if (ref < 0) {
+    ref = Math.max(0, andares.findIndex((a) => a.id === 'terreo'));
+    andares[ref].referencia = true;
+  }
+
+  // Cotas: a partir da referência, para cima e para baixo
+  andares[ref].cota = andares[ref].cotaInformada ?? 0;
+  for (let i = ref + 1; i < andares.length; i++) {
+    const baixo = andares[i - 1];
+    andares[i].cota = andares[i].cotaInformada ?? baixo.cota + baixo.peDireito + andares[i].laje;
+  }
+  for (let i = ref - 1; i >= 0; i--) {
+    const cima = andares[i + 1];
+    andares[i].cota = andares[i].cotaInformada ?? cima.cota - cima.laje - andares[i].peDireito;
+  }
+  return andares.map(({ cotaInformada, ...a }, i) => ({ ...a, ordem: i }));
+}
+
+/**
+ * Vazios: recortes na laje do andar (pé-direito duplo, mezanino). Retângulo
+ * (x, y, largura, comprimento) ou `pontos`, como um cômodo.
+ */
+function normalizarVazios(lista, nomeAndar, ids) {
+  if (lista === undefined) return [];
+  if (!Array.isArray(lista)) falhar(`"${nomeAndar}": "vazios" precisa ser uma lista.`);
+  return lista.map((v, i) => {
+    const n = i + 1;
+    if (!v || typeof v !== 'object') falhar(`"${nomeAndar}": o vazio ${n} precisa ser um objeto { x, y, largura, comprimento }.`);
+    const nome = typeof v.nome === 'string' && v.nome.trim() ? v.nome.trim() : `Vazio ${n}`;
+    let id = String(v.id || `vazio-${n}`).replace(/[^a-zA-Z0-9_-]/g, '-');
+    while (ids.has(id)) id += `-${n}`;
+    ids.add(id);
+    const { area, bb, pontos } = medirComodo({ pontos: lerPontos(v, nome) });
+    return { id, nome, pontos, area, bb };
+  });
+}
+
+function normalizarComodos(lista, idsUsados) {
   return lista.map((c, i) => {
     const n = i + 1;
     if (!c || typeof c.nome !== 'string' || !c.nome.trim()) falhar(`O cômodo ${n} está sem "nome".`);

@@ -3,252 +3,287 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Planta do apartamento com medidas por cômodo e modelo 3D.">
-  <meta name="theme-color" content="#04060b">
-  <title>Roomprint</title>
+  <meta name="description" content="Roomprint: desenhe sua casa em planta 2D, confira as medidas em escala e caminhe pelo modelo 3D.">
+  <meta name="theme-color" content="#E1D7C8">
+  <title>Roomprint · Plantas 2D e 3D</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
-  <!-- Fontes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&display=swap">
 
-  <!-- Estilos -->
   <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/planta.css">
-  <link rel="stylesheet" href="css/editor.css">
-  <link rel="stylesheet" href="css/passeio.css">
-  <link rel="stylesheet" href="css/impressao.css">
-
-  <!-- three.js é baixado só ao abrir uma aba 3D (ver js/components/modelo3d/carregar-three.js);
-       o preconnect só adianta a conexão com o CDN, sem baixar nada -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-
-  <!-- Aplicação -->
-  <script type="module" src="js/main.js"></script>
+  <link rel="stylesheet" href="css/inicio.css">
 </head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand">
-      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="2" width="22" height="22" fill="none" stroke="#4f86ff" stroke-width="2.4"/><path d="M2 13h11V2M13 13v11M13 18h11" fill="none" stroke="#4f86ff" stroke-width="2.4"/></svg>
-      <span>Roomprint</span>
-    </div>
-    <span class="pill" id="badge"><span class="dot" id="badge-dot"></span><span id="badge-txt">Rascunho do desenho</span></span>
-  </header>
+<body class="inicio">
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
-  <section class="intro">
-    <span class="eyebrow" id="nome-ape">Apartamento</span>
-    <h1 id="titulo">Minha casa, cômodo por cômodo</h1>
+<!-- Miniplantas usadas nos cards (definidas uma vez, reaproveitadas com <use>) -->
+<svg width="0" height="0" class="lp-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="lp-grade" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M16 0V16H0" fill="none" stroke="#E2D9CB" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <symbol id="planta-jardim" viewBox="0 0 398 210">
+    <rect width="398" height="210" fill="#ECE5D9"/><rect width="398" height="210" fill="url(#lp-grade)"/>
+    <g stroke="#1B4E77" stroke-width="3">
+      <rect x="48" y="28" width="170" height="150" fill="#FBF8F3"/><rect x="218" y="28" width="130" height="80" fill="#F8D9CB"/>
+      <rect x="218" y="108" width="80" height="70" fill="#E4D9C7"/><rect x="298" y="108" width="50" height="70" fill="#FBF8F3"/>
+      <rect x="20" y="28" width="28" height="150" fill="#DDE5EA"/>
+    </g>
+    <g stroke="#7FA3BF" stroke-width="5"><path d="M90 28H170M260 28H330"/></g>
+    <circle cx="212" cy="178" r="5" fill="#E4653C"/>
+  </symbol>
+  <symbol id="planta-studio" viewBox="0 0 398 210">
+    <rect width="398" height="210" fill="#ECE5D9"/><rect width="398" height="210" fill="url(#lp-grade)"/>
+    <g stroke="#1B4E77" stroke-width="3">
+      <rect x="96" y="30" width="206" height="150" fill="#FBF8F3"/><rect x="96" y="30" width="80" height="60" fill="#E4D9C7"/>
+      <rect x="222" y="120" width="80" height="60" fill="#F8D9CB"/><rect x="302" y="30" width="40" height="150" fill="#DDE5EA"/>
+    </g>
+    <g stroke="#7FA3BF" stroke-width="5"><path d="M130 30H200M342 60V150"/></g>
+    <circle cx="296" cy="180" r="5" fill="#E4653C"/>
+  </symbol>
+  <symbol id="planta-mirante" viewBox="0 0 398 210">
+    <rect width="398" height="210" fill="#ECE5D9"/><rect width="398" height="210" fill="url(#lp-grade)"/>
+    <g stroke="#1B4E77" stroke-width="3">
+      <rect x="30" y="24" width="140" height="100" fill="#F8D9CB"/><rect x="170" y="24" width="120" height="100" fill="#FBF8F3"/>
+      <rect x="290" y="24" width="80" height="160" fill="#DDE5EA"/><rect x="30" y="124" width="90" height="60" fill="#E4D9C7"/>
+      <rect x="120" y="124" width="170" height="60" fill="#FBF8F3"/>
+    </g>
+    <g stroke="#7FA3BF" stroke-width="5"><path d="M60 24H140M190 24H270M370 50V160"/></g>
+    <circle cx="164" cy="124" r="5" fill="#E4653C"/>
+  </symbol>
+</svg>
+
+<header class="lp-top">
+  <div class="lp-container lp-nav">
+    <a href="./" class="lp-brand" aria-label="Roomprint, página inicial">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1.5" y="1.5" width="31" height="31" rx="7" fill="#1B4E77"/><path d="M9 9H25V25H9Z" stroke="#F6F2EB" stroke-width="2.2" fill="none"/><path d="M17 9V18H25" stroke="#F6F2EB" stroke-width="2.2" fill="none"/><rect x="18.5" y="19.5" width="5" height="4" fill="#E4653C"/></svg>
+      <span class="lp-brand-txt"><span class="lp-brand-nome">ROOMPRINT</span><span class="lp-brand-sub">Plantas 2D · 3D</span></span>
+    </a>
+    <nav class="lp-menu" aria-label="Principal">
+      <a href="#plantas">Plantas</a>
+      <a href="app.html#editor">Editor visual</a>
+      <a href="app.html#caminhar">Modo Caminhar</a>
+      <a href="#como-funciona">Como funciona</a>
+    </nav>
+    <a href="app.html#editor" class="lp-btn primario">Abrir editor</a>
+  </div>
+</header>
+
+<main id="conteudo">
+  <!-- Hero: arte da planta + painel técnico -->
+  <section class="lp-hero">
+    <div class="lp-container lp-hero-grid">
+      <div class="lp-hero-visual">
+        <svg class="lp-hero-arte" viewBox="0 0 699 490" preserveAspectRatio="xMaxYMin slice" aria-hidden="true">
+          <defs>
+            <pattern id="lp-grade-hero" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0V24H0" fill="none" stroke="#F6F2EB" stroke-opacity=".05"/></pattern>
+            <linearGradient id="lp-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F2233" stop-opacity="0"/><stop offset="1" stop-color="#0F2233" stop-opacity=".85"/></linearGradient>
+          </defs>
+          <rect width="699" height="490" fill="url(#lp-grade-hero)"/>
+          <g transform="translate(20 -90)" opacity=".75">
+            <g stroke="#F6F2EB" stroke-opacity=".32" stroke-width="3" fill="none"><path d="M330 40H660V300H330Z"/><path d="M500 40V170H660"/><path d="M500 170V300"/><path d="M420 170H500"/><path d="M330 170H380"/></g>
+            <g stroke="#7FA3BF" stroke-opacity=".7" stroke-width="6"><path d="M380 40H460"/><path d="M560 40H630"/><path d="M660 200V270"/></g>
+            <path d="M500 170A70 70 0 0 1 430 100" stroke="#F6F2EB" stroke-opacity=".25" stroke-dasharray="4 5" fill="none"/>
+            <rect x="500" y="40" width="160" height="130" fill="#E4653C" fill-opacity=".18"/>
+            <path d="M415 235 470 200 478 252Z" fill="#E4653C" fill-opacity=".28"/><circle cx="415" cy="235" r="7" fill="#E4653C"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="11" letter-spacing=".9" fill="#F6F2EB" fill-opacity=".55">
+            <text x="580" y="21">SUÍTE</text><text x="380" y="41">SALA</text><text x="560" y="156">COZINHA</text>
+          </g>
+          <rect y="230" width="699" height="260" fill="url(#lp-fade)"/>
+        </svg>
+
+        <span class="lp-selo">Planta em destaque · Apê Jardim 68 m²</span>
+
+        <div class="lp-hero-conteudo">
+          <h1>Sua casa em planta: medida, desenhada e caminhável.</h1>
+          <p>Desenhe cômodos no editor visual, confira cada medida em escala e passeie pelo modelo 3D antes de mover um único móvel.</p>
+          <div class="lp-acoes">
+            <a href="#plantas" class="lp-btn claro">Explorar plantas</a>
+            <a href="app.html#3d" class="lp-btn contorno">Ver em 3D</a>
+          </div>
+        </div>
+      </div>
+
+      <aside class="lp-painel" aria-label="Prévia técnica da planta">
+        <div>
+          <div class="lp-painel-topo">
+            <div>
+              <div class="lp-painel-rotulo">Esquema de fluxo · Pavimento único</div>
+              <strong>Apê Jardim · 8,2 m × 8,3 m</strong>
+            </div>
+            <span class="lp-painel-area">68 m²</span>
+          </div>
+          <div class="lp-esboco">
+            <div class="lp-comodo social">
+              <span class="lp-comodo-nome">Sala integrada + Varanda</span>
+              <span class="lp-comodo-med">32 m² · Pé-direito 2,70 m</span>
+            </div>
+            <div class="lp-comodo">
+              <span class="lp-comodo-nome">Suíte</span>
+              <span class="lp-comodo-med">14 m² · Closet</span>
+            </div>
+            <div class="lp-comodo">
+              <span class="lp-comodo-nome">Cozinha + Área</span>
+              <span class="lp-comodo-med">10 m² · Bancada em L</span>
+            </div>
+          </div>
+        </div>
+        <div class="lp-specs">
+          <div><strong>2 Quartos</strong><span>+ Home office</span></div>
+          <div><strong>1 Vaga</strong><span>Coberta</span></div>
+          <div><strong>Escala</strong><span>1:50 impressa</span></div>
+        </div>
+      </aside>
+    </div>
   </section>
 
-  <!-- Aparece só quando os dados da planta têm algum erro -->
-  <div class="card erro-dados" id="erro-dados" role="alert" hidden>
-    <span class="eyebrow">Erro nos dados da planta</span>
-    <p id="erro-dados-txt"></p>
-    <p class="erro-dica">Confira o arquivo <code>public/js/constants/apartamento.js</code>. Para mais detalhes, abra o console do navegador (F12).</p>
+  <!-- Catálogo de plantas -->
+  <section class="lp-secao" id="plantas">
+    <div class="lp-container">
+      <div class="lp-secao-topo">
+        <div>
+          <div class="lp-kicker">Catálogo de plantas</div>
+          <h2>Plantas prontas com leitura clara de área e fluxo</h2>
+        </div>
+        <p>Cada card mostra a miniatura em escala, a área total e os dados que decidem uma planta antes do texto longo.</p>
+      </div>
+      <div class="lp-cards">
+        <article class="lp-card">
+          <div class="lp-card-midia"><svg viewBox="0 0 398 210" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Miniatura da planta Apê Jardim 68"><use href="#planta-jardim"/></svg><span class="lp-card-tag">2D + 3D · Apartamento</span></div>
+          <div class="lp-card-corpo">
+            <div class="lp-card-topo"><h3>Apê Jardim 68</h3><span class="lp-card-valor">68 m²</span></div>
+            <p>Sala integrada à varanda, suíte iluminada e cozinha aberta com bancada em L.</p>
+            <div class="lp-card-meta"><span>2 quartos</span><span>1 suíte</span><span>Varanda</span></div>
+          </div>
+        </article>
+        <article class="lp-card">
+          <div class="lp-card-midia"><svg viewBox="0 0 398 210" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Miniatura da planta Studio Centro 32"><use href="#planta-studio"/></svg><span class="lp-card-tag">2D · Studio</span></div>
+          <div class="lp-card-corpo">
+            <div class="lp-card-topo"><h3>Studio Centro 32</h3><span class="lp-card-valor">32 m²</span></div>
+            <p>Studio compacto com cozinha linear, sacada envidraçada e cama separada por estante vazada.</p>
+            <div class="lp-card-meta"><span>1 ambiente</span><span>1 banheiro</span><span>Sacada</span></div>
+          </div>
+        </article>
+        <article class="lp-card">
+          <div class="lp-card-midia"><svg viewBox="0 0 398 210" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Miniatura da planta Cobertura Mirante 120"><use href="#planta-mirante"/></svg><span class="lp-card-tag">3D pronto · Cobertura</span></div>
+          <div class="lp-card-corpo">
+            <div class="lp-card-topo"><h3>Cobertura Mirante 120</h3><span class="lp-card-valor">120 m²</span></div>
+            <p>Terraço descoberto em L, três suítes e área social aberta para a vista.</p>
+            <div class="lp-card-meta"><span>3 suítes</span><span>Terraço</span><span>2 vagas</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section class="lp-faixa" id="como-funciona">
+    <div class="lp-container lp-faixa-grid">
+      <div class="lp-faixa-visual">
+        <svg viewBox="0 0 544 430" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><pattern id="lp-grade-passeio" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0V20H0" fill="none" stroke="#F6F2EB" stroke-opacity=".05"/></pattern></defs>
+          <rect width="544" height="430" fill="#0F2233"/><rect width="544" height="430" fill="url(#lp-grade-passeio)"/>
+          <rect x="60" y="60" width="424" height="290" fill="#163049" stroke="#F6F2EB" stroke-opacity=".85" stroke-width="4"/>
+          <g stroke="#F6F2EB" stroke-opacity=".85" stroke-width="3" fill="none"><path d="M300 60V200M300 250V350M300 200H484M60 230H150M200 230H300"/></g>
+          <rect x="300" y="60" width="184" height="140" fill="#E4653C" fill-opacity=".16"/>
+          <g stroke="#7FA3BF" stroke-width="7"><path d="M100 60H230M340 60H440M484 240V320"/></g>
+          <g fill="#F6F2EB" fill-opacity=".12" stroke="#F6F2EB" stroke-opacity=".4" stroke-width="1.5"><rect x="90" y="110" width="120" height="60" rx="6"/><rect x="340" y="95" width="80" height="90" rx="4"/><rect x="90" y="270" width="70" height="50" rx="4"/></g>
+          <path d="M230 300 330 230 350 300Z" fill="#E4653C" fill-opacity=".32"/>
+          <circle cx="230" cy="300" r="9" fill="#E4653C" stroke="#F6F2EB" stroke-width="2"/>
+          <path d="M230 300C200 330 140 330 120 290" stroke="#E4653C" stroke-width="2" stroke-dasharray="5 6" fill="none"/>
+        </svg>
+        <span class="lp-escala">1:50</span>
+        <span class="lp-legenda"><i></i>Modo Caminhar · olhar a 1,60 m</span>
+      </div>
+
+      <div>
+        <div class="lp-kicker">Como funciona</div>
+        <h2>Do esboço à planta impressa em escala</h2>
+        <p class="lp-apoio">Quatro passos, uma única planta: o que você mede vira desenho, o desenho vira 3D e o 3D volta ao papel com cotas.</p>
+        <div class="lp-pilares">
+          <a class="lp-pilar" href="app.html#2d">
+            <span class="lp-pilar-num">01 · Medir</span>
+            <h3>Medidas reais</h3>
+            <p>Informe paredes, portas e janelas em centímetros; a planta se ajusta sozinha.</p>
+          </a>
+          <a class="lp-pilar" href="app.html#editor">
+            <span class="lp-pilar-num">02 · Desenhar</span>
+            <h3>Editor visual</h3>
+            <p>Arraste cômodos, gire móveis e veja a área de cada ambiente em tempo real.</p>
+          </a>
+          <a class="lp-pilar" href="app.html#caminhar">
+            <span class="lp-pilar-num">03 · Caminhar</span>
+            <h3>Passeio em 3D</h3>
+            <p>Entre no modelo e percorra a casa na altura do olhar, cômodo a cômodo, subindo as escadas entre os andares.</p>
+          </a>
+          <a class="lp-pilar" href="app.html#imprimir">
+            <span class="lp-pilar-num">04 · Imprimir</span>
+            <h3>Escala no papel</h3>
+            <p>Exporte em 1:50 ou 1:100 com régua e cotas, pronto para levar à obra.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plantas da comunidade -->
+  <section class="lp-secao lp-secao-final" id="comunidade">
+    <div class="lp-container">
+      <div class="lp-secao-topo">
+        <div>
+          <div class="lp-kicker">Plantas da comunidade</div>
+          <h2>Projetos recentes para inspirar ou comparar</h2>
+        </div>
+        <p>Mesma estrutura de card do catálogo, agora com plantas publicadas por quem já desenhou a própria casa.</p>
+      </div>
+      <div class="lp-cards">
+        <article class="lp-card">
+          <div class="lp-card-midia"><svg viewBox="0 0 398 210" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Miniatura da planta Casa Térrea Pátio 145"><use href="#planta-mirante"/></svg><span class="lp-card-tag">Publicada · Porto Alegre</span></div>
+          <div class="lp-card-corpo">
+            <div class="lp-card-topo"><h3>Casa Térrea Pátio 145</h3><span class="lp-card-valor">145 m²</span></div>
+            <p>Jardim interno no centro da casa, ventilação cruzada e quartos voltados para o pátio.</p>
+            <div class="lp-card-meta"><span>3 quartos</span><span>2 suítes</span><span>Pátio</span></div>
+          </div>
+        </article>
+        <article class="lp-card">
+          <div class="lp-card-midia"><svg viewBox="0 0 398 210" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Miniatura da planta Apê Vila Nova 92"><use href="#planta-jardim"/></svg><span class="lp-card-tag">Reforma · Curitiba</span></div>
+          <div class="lp-card-corpo">
+            <div class="lp-card-topo"><h3>Apê Vila Nova 92</h3><span class="lp-card-valor">92 m²</span></div>
+            <p>Parede derrubada entre sala e cozinha, home office no antigo quarto de serviço.</p>
+            <div class="lp-card-meta"><span>2 quartos</span><span>Home office</span><span>1 vaga</span></div>
+          </div>
+        </article>
+        <article class="lp-card">
+          <div class="lp-card-midia"><svg viewBox="0 0 398 210" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Miniatura da planta Loft Industrial 54"><use href="#planta-studio"/></svg><span class="lp-card-tag">Em obra · Florianópolis</span></div>
+          <div class="lp-card-corpo">
+            <div class="lp-card-topo"><h3>Loft Industrial 54</h3><span class="lp-card-valor">54 m²</span></div>
+            <p>Pé-direito duplo, mezanino com cama e cozinha em ilha virada para a janela.</p>
+            <div class="lp-card-meta"><span>Mezanino</span><span>1 banheiro</span><span>Ilha</span></div>
+          </div>
+        </article>
+      </div>
+      <div class="lp-cta">
+        <a href="app.html#editor" class="lp-btn primario">Desenhar minha planta</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="lp-rodape">
+  <div class="lp-container lp-rodape-grid">
+    <div>
+      <a href="./" class="lp-rodape-marca">ROOMPRINT</a>
+      <div class="lp-rodape-nota">Planta 2D interativa e modelo 3D de casas, em JavaScript puro.</div>
+    </div>
+    <div class="lp-paleta">
+      <i style="background:#E1D7C8"></i><i style="background:#1B4E77"></i><i style="background:#E4653C"></i>
+      <span>Marfim · Petróleo · Coral — 60/30/10</span>
+    </div>
   </div>
-
-  <main class="workspace">
-    <!-- Palco: planta 2D, modelo 3D, passeio ou editor -->
-    <section class="stage" aria-label="Visualização da planta">
-      <div class="toolbar">
-        <div class="seg" role="group" aria-label="Tipo de visualização">
-          <button type="button" id="tab-2d" aria-pressed="true">Planta 2D</button>
-          <button type="button" id="tab-3d" aria-pressed="false">Modelo 3D</button>
-          <button type="button" id="tab-passeio" aria-pressed="false">Caminhar</button>
-          <button type="button" id="tab-editor" aria-pressed="false">Editor</button>
-        </div>
-        <div class="legend" aria-label="Legenda">
-          <span><i class="sw interno"></i>Cômodo</span>
-          <span><i class="sw circulacao"></i>Circulação</span>
-          <span><i class="sw sacada"></i>Sacada</span>
-          <span><i class="sw janela"></i>Janela</span>
-        </div>
-      </div>
-
-      <div class="subbar" id="bar-2d">
-        <div class="grp">
-          <button type="button" class="btn sm" id="regua-btn" aria-pressed="false">Régua</button>
-          <button type="button" class="btn sm ico" id="zoom-menos" aria-label="Diminuir zoom">−</button>
-          <button type="button" class="btn sm ico" id="zoom-mais" aria-label="Aumentar zoom">+</button>
-          <button type="button" class="btn sm" id="zoom-ajustar">Ajustar</button>
-        </div>
-        <div class="grp" role="group" aria-label="Camadas da planta">
-          <span class="grp-t">Mostrar</span>
-          <button type="button" class="chip-t" data-camada="nomes" aria-pressed="true">Nomes</button>
-          <button type="button" class="chip-t" data-camada="cotas" aria-pressed="true">Medidas</button>
-          <button type="button" class="chip-t" data-camada="portas" aria-pressed="true">Portas</button>
-          <button type="button" class="chip-t" data-camada="grade" aria-pressed="true">Grade</button>
-        </div>
-      </div>
-
-      <div class="view" id="view-2d">
-        <svg id="planta" role="img" aria-label="Planta baixa do apartamento"></svg>
-        <div class="overlay ov-top">
-          <span class="tag mono" id="coord-2d" hidden></span>
-          <div class="ov-acoes">
-            <button type="button" class="btn sm btn-exportar" id="imprimir-btn" title="Imprimir ou salvar em PDF, em escala">
-              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4 9.5h8V14H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-              <span>Imprimir</span>
-            </button>
-            <button type="button" class="btn sm btn-exportar" id="baixar-png" title="Baixar a planta inteira como imagem PNG">
-              <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Baixar PNG</span>
-            </button>
-          </div>
-        </div>
-        <div class="overlay ov-bottom"><span class="tag" id="tag-2d">Toque num cômodo para ver as medidas</span></div>
-      </div>
-
-      <div class="view" id="view-3d" hidden>
-        <div id="view3d"></div>
-        <div class="overlay ov-top">
-          <span class="tag">Selecionado: <b id="sel-3d">—</b></span>
-          <span class="tag">Arraste para girar · pinça ou roda para zoom</span>
-        </div>
-        <div class="overlay ov-bottom">
-          <button type="button" class="btn" id="cam-iso">Vista 3D</button>
-          <button type="button" class="btn" id="cam-top">Vista de cima</button>
-          <button type="button" class="btn" id="paredes" aria-pressed="false">Paredes baixas</button>
-          <button type="button" class="btn" id="portas-3d" aria-pressed="false">Ocultar portas</button>
-        </div>
-        <div class="fallback" id="carregando-3d" hidden>Carregando o 3D…</div>
-        <div class="fallback" id="fallback-3d" hidden>O modelo 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
-      </div>
-
-      <!-- Caminhar: passeio em primeira pessoa -->
-      <div class="view" id="view-passeio" hidden>
-        <div id="passeio-host"></div>
-        <div class="overlay ov-top">
-          <span class="tag">Você está em: <b id="passeio-local">—</b></span>
-          <span class="tag passeio-ajuda">WASD ou setas para andar · Shift corre · arraste para olhar</span>
-        </div>
-        <div class="overlay ov-bottom passeio-base">
-          <button type="button" class="btn" id="passeio-reiniciar">Voltar ao centro do cômodo</button>
-          <div class="passeio-setas" aria-label="Controles de movimento">
-            <button type="button" class="btn ico" data-passo="KeyW" aria-label="Andar para frente">▲</button>
-            <button type="button" class="btn ico" data-passo="KeyA" aria-label="Andar para a esquerda">◀</button>
-            <button type="button" class="btn ico" data-passo="KeyS" aria-label="Andar para trás">▼</button>
-            <button type="button" class="btn ico" data-passo="KeyD" aria-label="Andar para a direita">▶</button>
-          </div>
-        </div>
-        <div class="fallback" id="carregando-passeio" hidden>Carregando o 3D…</div>
-        <div class="fallback" id="fallback-passeio" hidden>O passeio em 3D não carregou neste aparelho. A planta 2D continua funcionando normalmente.</div>
-      </div>
-
-      <!-- Editor visual -->
-      <div class="subbar" id="bar-editor" hidden>
-        <div class="grp" role="group" aria-label="Adicionar">
-          <span class="grp-t">Adicionar</span>
-          <button type="button" class="btn sm" id="ed-add-comodo">+ Cômodo</button>
-          <button type="button" class="btn sm" id="ed-add-sacada">+ Sacada</button>
-          <button type="button" class="btn sm" id="ed-add-porta" aria-pressed="false">+ Porta</button>
-          <button type="button" class="btn sm" id="ed-add-janela" aria-pressed="false">+ Janela</button>
-        </div>
-        <div class="grp">
-          <button type="button" class="btn sm" id="ed-desfazer" title="Desfazer (Ctrl+Z)" disabled>Desfazer</button>
-          <button type="button" class="btn sm" id="ed-refazer" title="Refazer (Ctrl+Y)" disabled>Refazer</button>
-          <button type="button" class="btn sm ico" id="ed-zoom-menos" aria-label="Diminuir zoom">−</button>
-          <button type="button" class="btn sm ico" id="ed-zoom-mais" aria-label="Aumentar zoom">+</button>
-          <button type="button" class="btn sm" id="ed-zoom-ajustar">Ajustar</button>
-        </div>
-      </div>
-
-      <div class="view" id="view-editor" hidden>
-        <svg id="editor-svg" role="application" aria-label="Editor da planta"></svg>
-        <div class="overlay ov-top"><span class="tag mono" id="editor-coord" hidden></span></div>
-        <div class="overlay ov-bottom"><span class="tag" id="editor-dica"></span></div>
-      </div>
-    </section>
-
-    <!-- Painel lateral: cômodo selecionado (ou editor) + lista -->
-    <aside class="panel">
-      <div class="card ed-painel" id="painel-editor" hidden>
-        <div class="ed-rascunho" id="editor-rascunho" hidden>
-          <span>Há um rascunho do editor salvo neste navegador em <b id="editor-rascunho-quando"></b>.</span>
-          <div class="ed-acoes">
-            <button type="button" class="btn sm primary" id="ed-rascunho-restaurar">Restaurar</button>
-            <button type="button" class="btn sm" id="ed-rascunho-descartar">Descartar</button>
-          </div>
-        </div>
-        <div class="ed-avisos" id="editor-avisos" role="status" hidden></div>
-        <div id="editor-form"></div>
-        <div class="ed-salvar">
-          <span class="eyebrow">Salvar</span>
-          <div class="ed-acoes">
-            <button type="button" class="btn sm primary" id="ed-baixar">Baixar apartamento.js</button>
-            <button type="button" class="btn sm" id="ed-copiar">Copiar código</button>
-            <button type="button" class="btn sm" id="ed-descartar">Descartar alterações</button>
-          </div>
-          <p class="ed-status" id="editor-status" aria-live="polite"></p>
-        </div>
-      </div>
-
-      <div class="card detail" id="painel-detalhe" aria-live="polite">
-        <span class="eyebrow">Cômodo selecionado</span>
-        <h2 id="d-nome">—</h2>
-        <span class="chip" id="d-tipo">—</span>
-        <div class="aviso-room" id="d-nota" hidden><span class="dot"></span><span id="d-nota-txt"></span></div>
-        <dl class="medidas">
-          <div><dt id="d-larg-t">Largura</dt><dd id="d-larg">—</dd></div>
-          <div><dt id="d-comp-t">Comprimento</dt><dd id="d-comp">—</dd></div>
-          <div><dt>Área do piso</dt><dd id="d-area">—</dd></div>
-          <div><dt>Perímetro</dt><dd id="d-per">—</dd></div>
-          <div><dt>Pé-direito</dt><dd id="d-pe">—</dd></div>
-          <div><dt>Área de paredes</dt><dd id="d-par">—</dd></div>
-        </dl>
-      </div>
-
-      <div class="card rooms">
-        <h3>Cômodos <small id="r-count">0</small></h3>
-        <ul id="lista"></ul>
-        <div class="total">
-          <div><span>Área interna</span><strong id="area-total">—</strong></div>
-          <div class="sub"><span>Sacadas</span><strong id="area-sacadas">—</strong></div>
-        </div>
-      </div>
-    </aside>
-  </main>
-</div>
-
-<!-- Opções de impressão em escala -->
-<dialog class="dialogo" id="dialogo-imprimir" aria-labelledby="imp-titulo">
-  <h2 id="imp-titulo">Imprimir em escala</h2>
-  <div class="dialogo-campos">
-    <label class="ed-campo"><span>Escala</span>
-      <select id="imp-escala">
-        <option value="auto" selected>Automática (maior que couber)</option>
-        <option value="50">1:50</option>
-        <option value="75">1:75</option>
-        <option value="100">1:100</option>
-        <option value="125">1:125</option>
-        <option value="150">1:150</option>
-        <option value="200">1:200</option>
-      </select>
-    </label>
-    <label class="ed-campo"><span>Papel</span>
-      <select id="imp-papel">
-        <option value="A4" selected>A4</option>
-        <option value="A3">A3</option>
-      </select>
-    </label>
-    <label class="ed-campo"><span>Orientação</span>
-      <select id="imp-orientacao">
-        <option value="auto" selected>Automática</option>
-        <option value="retrato">Retrato</option>
-        <option value="paisagem">Paisagem</option>
-      </select>
-    </label>
-  </div>
-  <p class="dialogo-resumo" id="imp-resumo" aria-live="polite"></p>
-  <p class="dialogo-nota">Na janela de impressão, deixe a escala em <b>100%</b> (ou "Tamanho real") para as medidas saírem certas. Para gerar um PDF, escolha <b>"Salvar como PDF"</b> como impressora.</p>
-  <div class="ed-acoes">
-    <button type="button" class="btn primary" id="imp-confirmar">Imprimir / Salvar PDF</button>
-    <button type="button" class="btn" id="imp-cancelar">Cancelar</button>
-  </div>
-</dialog>
+</footer>
 </body>
 </html>

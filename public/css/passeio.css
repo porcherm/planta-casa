@@ -7,15 +7,27 @@
 #passeio-host canvas:active { cursor: grabbing; }
 
 .passeio-base { justify-content: space-between; align-items: flex-end; }
+.passeio-acoes { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2); }
+.passeio-andar { display: flex; gap: var(--s2); flex-wrap: wrap; }
+
+/* Celular: rótulos curtos e as setas na mesma linha dos botões, sem cobrir a vista */
+@media (max-width: 600px) {
+  .so-largo { display: none; }
+  .passeio-base { flex-wrap: nowrap; gap: var(--s2); }
+  .passeio-acoes { min-width: 0; }
+  .passeio-acoes .btn { padding-inline: var(--s3); }
+  .passeio-setas { flex: none; }
+  #view-passeio .ov-top .passeio-ajuda { display: none; }
+}
 
 /* Setas na tela (úteis no celular, onde não há teclado) */
 .passeio-setas {
   display: grid;
-  grid-template-columns: repeat(3, 40px);
-  grid-template-rows: repeat(2, 40px);
-  gap: 4px;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(2, 44px);
+  gap: var(--s1);
 }
-.passeio-setas .btn { width: 40px; height: 40px; padding: 0; font-size: 14px; touch-action: none; user-select: none; }
+.passeio-setas .btn { width: 44px; height: 44px; padding: 0; font-size: var(--t-sm); touch-action: none; user-select: none; }
 .passeio-setas [data-passo="KeyW"] { grid-column: 2; grid-row: 1; }
 .passeio-setas [data-passo="KeyA"] { grid-column: 1; grid-row: 2; }
 .passeio-setas [data-passo="KeyS"] { grid-column: 2; grid-row: 2; }
